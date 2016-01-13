@@ -1,9 +1,13 @@
 package com.jroossien.portalguns;
 
 import com.jroossien.portalguns.commands.Commands;
+import com.jroossien.portalguns.config.GunCfg;
 import com.jroossien.portalguns.config.PluginCfg;
+import com.jroossien.portalguns.config.PortalCfg;
 import com.jroossien.portalguns.config.messages.MessageCfg;
+import com.jroossien.portalguns.guns.GunManager;
 import com.jroossien.portalguns.listeners.MainListener;
+import com.jroossien.portalguns.portals.PortalManager;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
@@ -22,6 +26,11 @@ public class PortalGuns extends JavaPlugin {
 
     private PluginCfg cfg;
     private MessageCfg msgCfg;
+    private PortalCfg portalCfg;
+    private GunCfg gunCfg;
+
+    private PortalManager pm;
+    private GunManager gm;
 
     private Commands cmds;
 
@@ -52,6 +61,11 @@ public class PortalGuns extends JavaPlugin {
 
         cfg = new PluginCfg("plugins/PortalGuns/PortalGuns.yml");
         msgCfg = new MessageCfg("plugins/PortalGuns/Messages.yml");
+        portalCfg = new PortalCfg("plugins/PortalGuns/data/Portals.yml");
+        gunCfg = new GunCfg("plugins/PortalGuns/data/Guns.yml");
+
+        pm = new PortalManager(this);
+        gm = new GunManager(this);
 
         cmds = new Commands(this);
 
@@ -95,6 +109,21 @@ public class PortalGuns extends JavaPlugin {
         return msgCfg;
     }
 
+    public PortalCfg getPortalCfg() {
+        return portalCfg;
+    }
 
+    public GunCfg getGunCfg() {
+        return gunCfg;
+    }
+
+
+    public PortalManager getPM() {
+        return pm;
+    }
+
+    public GunManager getGM() {
+        return gm;
+    }
 
 }

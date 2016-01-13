@@ -1,8 +1,6 @@
 package com.jroossien.portalguns.util;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -494,5 +492,63 @@ public class Util {
             }
         }
         return true;
+    }
+
+    public static String parseLocation(Location input) {
+        return  parseLocation(input, false);
+    }
+
+    public static String parseLocation(Location input, boolean blockLocation) {
+        if (input == null) {
+            return null;
+        }
+        String x = (blockLocation || input.getX()%1 == 0) ? Integer.toString(input.getBlockX()) : Double.toString(input.getX());
+        String y = (blockLocation || input.getY()%1 == 0) ? Integer.toString(input.getBlockY()) : Double.toString(input.getY());
+        String z = (blockLocation || input.getZ()%1 == 0) ? Integer.toString(input.getBlockZ()) : Double.toString(input.getZ());
+
+        if (input.getYaw() == 0 && input.getPitch() == 0) {
+            return  x + "," + y + "," + z + ":" + input.getWorld().getName();
+        }
+        return  x + "," + y + "," + z + "," + input.getYaw() + "," + input.getPitch() + ":" + input.getWorld().getName();
+    }
+
+    public static Location parseLocation(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return null;
+        }
+
+        //Split string by semicolon like x,y,z:world or x,y,z:player
+        World world = null;
+        String[] split = input.split(":");
+        if (split.length > 1) {
+            //Get world.
+            world = Bukkit.getWorld(split[1]);
+        }
+        if (world == null) {
+            return null;
+        }
+
+        //Get the coords x,y,z[,yaw,pitch]
+        String[] coords = split[0].split(",");
+        if (coords.length < 3) {
+            return null;
+        }
+
+        Double x = Util.getDouble(coords[0]);
+        Double y = Util.getDouble(coords[1]);
+        Double z = Util.getDouble(coords[2]);
+        if (x == null || y == null || z == null) {
+            return null;
+        }
+
+        Location loc = new Location(world, x, y, z);
+        if (coords.length >= 4 && Util.getFloat(coords[3]) != null) {
+            loc.setYaw(Util.getFloat(coords[3]));
+        }
+        if (coords.length >= 5 && Util.getFloat(coords[4]) != null) {
+            loc.setPitch(Util.getFloat(coords[4]));
+        }
+
+        return loc;
     }
 }
