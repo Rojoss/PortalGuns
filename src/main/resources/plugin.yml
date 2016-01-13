@@ -1,0 +1,11 @@
+main : ${project.groupId}.portalguns.PortalGuns
+name: Luck
+version: ${project.version}
+description: ${project.description}
+author: ${project.author}
+softdepend: [Vault]
+commands:
+  portalguns:
+    description: Main plugin command.
+    usage: /<command> [help|reload|info|give]
+    aliases: [portalgun,pg,pguns,pgun,portalg]
