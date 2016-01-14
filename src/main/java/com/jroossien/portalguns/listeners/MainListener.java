@@ -6,6 +6,7 @@ import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.ItemUtil;
+import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
@@ -94,7 +95,7 @@ public class MainListener implements Listener {
 
 
         //Get the gun.
-        UUID gunUid = UUID.fromString(Str.stripColor(item.getLore(0)));
+        UUID gunUid = Parse.UUID(Str.stripColor(item.getLore(0)));
         GunData gun = pg.getGM().getGun(gunUid);
         if (gun == null) {
             item.setName(Msg.INACTIVE_GUN.getMsg());

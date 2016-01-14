@@ -31,16 +31,16 @@ public class GunData {
             type = GunType.valueOf(data.get("type"));
         }
         if (data.containsKey("owner")) {
-            owner = UUID.fromString(data.get("owner"));
+            owner = Parse.UUID(data.get("owner"));
         }
         if (data.containsKey("durability")) {
             durability = Parse.Short(data.get("durability"));
         }
         if (data.containsKey("primaryPortal")) {
-            primaryPortal = UUID.fromString(data.get("primaryPortal"));
+            primaryPortal = Parse.UUID(data.get("primaryPortal"));
         }
         if (data.containsKey("secondaryPortal")) {
-            secondaryPortal = UUID.fromString(data.get("secondaryPortal"));
+            secondaryPortal = Parse.UUID(data.get("secondaryPortal"));
         }
         if (data.containsKey("primaryColor")) {
             primaryColor = Parse.Color(data.get("primaryColor"));
@@ -57,7 +57,7 @@ public class GunData {
         if (data.containsKey("shares")) {
             String[] split = data.get("shares").split(",");
             for (String share : split) {
-                UUID uuid = UUID.fromString(share);
+                UUID uuid = Parse.UUID(share);
                 if (uuid != null) {
                     shares.add(uuid);
                 }

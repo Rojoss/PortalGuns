@@ -47,7 +47,7 @@ public class Parse {
         String[] split = str.split(",");
         List<UUID> uuids = new ArrayList<UUID>();
         for (String uuidStr : split) {
-            UUID uuid = UUID.fromString(uuidStr);
+            UUID uuid = UUID(uuidStr);
             if (uuid != null) {
                 uuids.add(uuid);
             }
@@ -165,6 +165,21 @@ public class Parse {
             try {
                 return Float.parseFloat(str);
             } catch (NumberFormatException e) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Convert a uuid string to a UUID. Returns null if it's invalid.
+     * @param str
+     * @return uuid
+     */
+    public static UUID UUID(String str) {
+        if (str != null && str != "") {
+            try {
+                return UUID.fromString(str);
+            } catch (IllegalArgumentException e) {
             }
         }
         return null;

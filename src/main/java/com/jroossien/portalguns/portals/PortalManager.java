@@ -3,6 +3,7 @@ package com.jroossien.portalguns.portals;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.config.PortalCfg;
+import com.jroossien.portalguns.util.Parse;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -32,7 +33,7 @@ public class PortalManager {
         int removals = 0;
         Map<String, Map<String, String>> cfgPortals = new HashMap<String, Map<String, String>>(cfg.portals);
         for (Map.Entry<String, Map<String, String>> entry : cfgPortals.entrySet()) {
-            UUID uid = UUID.fromString(entry.getKey());
+            UUID uid = Parse.UUID(entry.getKey());
             PortalData data = new PortalData(uid, entry.getValue());
             if (!data.isValid()) {
                 cfg.portals.remove(entry.getKey());

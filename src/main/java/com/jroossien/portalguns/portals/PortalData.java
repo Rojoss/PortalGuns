@@ -27,7 +27,7 @@ public class PortalData {
             return;
         }
         this.uid = uid;
-        gun = UUID.fromString(data.get("gun"));
+        gun = Parse.UUID(data.get("gun"));
         center = Parse.Location(data.get("center"));
         block1 = Parse.Block(data.get("block1"));
         block2 = Parse.Block(data.get("block2"));

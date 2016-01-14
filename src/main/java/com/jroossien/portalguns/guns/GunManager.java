@@ -3,6 +3,7 @@ package com.jroossien.portalguns.guns;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.config.GunCfg;
 import com.jroossien.portalguns.config.messages.Msg;
+import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.item.EItem;
 
 import java.util.*;
@@ -24,7 +25,7 @@ public class GunManager {
         int removals = 0;
         Map<String, Map<String, String>> cfgGuns = new HashMap<String, Map<String, String>>(cfg.guns);
         for (Map.Entry<String, Map<String, String>> entry : cfgGuns.entrySet()) {
-            UUID uid = UUID.fromString(entry.getKey());
+            UUID uid = Parse.UUID(entry.getKey());
             GunData data = new GunData(uid, entry.getValue());
             if (!data.isValid()) {
                 cfg.guns.remove(entry.getKey());
