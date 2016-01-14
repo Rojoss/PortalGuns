@@ -53,7 +53,7 @@ public class GunManager {
         return null;
     }
 
-    public GunData getPlayerGun(UUID player, short index) {
+    public GunData getGun(UUID owner, short index) {
         for (GunData gun : guns.values()) {
             if (!gun.isValid()) {
                 continue;
@@ -61,10 +61,9 @@ public class GunManager {
             if (gun.getIndex() != index) {
                 continue;
             }
-            if (gun.getOwner() == null || !gun.getOwner().equals(player)) {
-                continue;
+            if ((gun.getOwner() == null && owner == null) || (gun.getOwner() != null && gun.getOwner().equals(owner))) {
+                return gun;
             }
-            return gun;
         }
         return null;
     }
@@ -137,7 +136,12 @@ public class GunManager {
             uid = UUID.randomUUID();
         }
 
-        GunData data = new GunData(uid, index, type, owner);
+        GunData data = getGun(owner, index);
+        if (data != null) {
+            return data;
+        }
+
+        data = new GunData(uid, index, type, owner);
         if (!data.isValid()) {
             return null;
         }
