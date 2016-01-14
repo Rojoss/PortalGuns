@@ -2,11 +2,14 @@ package com.jroossien.portalguns.listeners;
 
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
+import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.ItemUtil;
 import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
+import com.jroossien.portalguns.util.item.EItem;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -75,28 +78,40 @@ public class MainListener implements Listener {
     @EventHandler
     private void usePortalGun(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        ItemStack item = event.getItem();
+        EItem item = new EItem(event.getItem());
 
         //Validate the item.
-        //TODO: Do a proper portal item check.
-        if (item == null || item.getType() != Material.BREWING_STAND_ITEM || !item.hasItemMeta()) {
+        if (!ItemUtil.compare(item, pg.getGM().getBlankGunItem(), false, true, false, true)) {
             return;
         }
-        ItemMeta meta = item.getItemMeta();
-        if (!meta.hasDisplayName() && !meta.hasLore()) {
+        if (item.getLore().isEmpty() || !Str.replaceColor(item.getLore().get(0)).startsWith(Msg.GUN_UID_PREFIX.getMsg()) || !Str.replaceColor(item.getLore().get(1)).startsWith(Msg.GUN_OWNER.getMsg())) {
             return;
         }
 
+        //Block placing/using gun.
         event.setUseItemInHand(Event.Result.DENY);
         event.setCancelled(true);
 
+
         //Get the gun.
-        UUID gunUid = UUID.fromString(Str.stripColor(meta.getLore().get(0)));
+        UUID gunUid = UUID.fromString(Str.stripColor(item.getLore(0)));
         GunData gun = pg.getGM().getGun(gunUid);
         if (gun == null) {
-            //TODO: Fail...
+            item.setName(Msg.INACTIVE_GUN.getMsg());
             return;
         }
+
+        //Check if gun is owned by the player.
+        if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId())) {
+            Bukkit.broadcastMessage("Not your gun!");
+            //TODO: Fail..
+            return;
+        }
+        //Update owner name if player changed name.
+        if (gun.getOwner() != null) {
+            item.setLore(1, Msg.GUN_OWNER.getMsg() + player.getName());
+        }
+
 
         //Get block and block face either by clicking it or from a distance.
         boolean clickBlock = event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK;
@@ -107,21 +122,24 @@ public class MainListener implements Listener {
             block = blocks.get(1);
             face = blocks.get(1).getFace(blocks.get(0));
         }
-        //TODO: Check if portal can be attached to this block.
-        if (block == null || ItemUtil.TRANSPARENT_MATERIALS.contains(block.getType())) {
+        if (!canAttachPortal(block) || !canHavePortal(block.getRelative(face))) {
+            Bukkit.broadcastMessage("Can't attach portal at block");
             //TODO: Fail...
             return;
         }
 
+
         //Try to get a nearby side block as a portal needs two blocks.
         Block side = getSideBlock(block, face);
         if (side == null ) {
+            Bukkit.broadcastMessage("No side block to attach portal to");
             //TODO: Fail...
             return;
         }
 
         //Get the center location in front of the two blocks.
-        Location center = getCenter(block, side, face);
+        Location center = Util.getCenter(block, side);
+        Util.offsetLocation(center, face, 0.75f);
 
         //Get alternative block face for up and down portals so the particles can be created properly.
         BlockFace dir = null;
@@ -140,6 +158,7 @@ public class MainListener implements Listener {
             type = PortalType.SECONDARY;
         }
 
+
         //Move portal if gun already has a portal for the type.
         PortalData portal = pg.getPM().getPortal(gun.getPortal(type));
         if (portal != null) {
@@ -152,55 +171,64 @@ public class MainListener implements Listener {
         //Try create new portal.
         portal = pg.getPM().createPortal(gunUid, center, block.getRelative(face), side.getRelative(face), type, face, dir);
         if (portal == null) {
+            Bukkit.broadcastMessage("Failed creating new portal");
             //TODO: Fail...
             return;
         }
         gun.setPortal(type, portal.getUid());
-
         //TODO: Don't save for each portal creation.
         pg.getGM().saveGun(gun, true);
     }
 
-    public Block getSideBlock(Block block, BlockFace face) {
+    private Block getSideBlock(Block block, BlockFace face) {
         if (face == BlockFace.UP || face == BlockFace.DOWN) {
+            //Find a block around the block that can have a portal attached.
             for (BlockFace side : sides) {
                 Block sideBlock = block.getRelative(side);
-                //TODO: Check if portal can be attached to this block.
-                if (sideBlock.getType() == Material.AIR) {
+                if (!canAttachPortal(sideBlock)) {
                     continue;
                 }
-                if (!ItemUtil.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
+                if (!canHavePortal(sideBlock.getRelative(face))) {
                     continue;
                 }
                 return sideBlock;
             }
             return null;
         } else {
+            //Find a block above or underneath the block that can have a portal attached.
             Block sideBlock = block.getRelative(BlockFace.UP);
-            //TODO: Check if portal can be attached to this block.
-            if (sideBlock.getType() == Material.AIR || !ItemUtil.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
-                //Try creating portal downwards
-                sideBlock = block.getRelative(BlockFace.DOWN);
-                //TODO: Check if portal can be attached to this block.
-                if (sideBlock.getType() == Material.AIR || !ItemUtil.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
-                    return null;
-                }
+            if (canAttachPortal(sideBlock) && canHavePortal(sideBlock.getRelative(face))) {
+                return sideBlock;
             }
-            return sideBlock;
+            sideBlock = block.getRelative(BlockFace.DOWN);
+            if (canAttachPortal(sideBlock) && canHavePortal(sideBlock.getRelative(face))) {
+                return sideBlock;
+            }
+            return null;
         }
     }
 
-    private Location getCenter(Block mainBlock, Block sideBlock, BlockFace face) {
-        //Get the absolute center of the two blocks.
-        double x = (double)(mainBlock.getX() + sideBlock.getX() + 1) / 2;
-        double y = (double)(mainBlock.getY() + sideBlock.getY() + 1) / 2;
-        double z = (double)(mainBlock.getZ() + sideBlock.getZ() + 1) / 2;
+    private boolean canHavePortal(Block block) {
+        if (block == null) {
+            return false;
+        }
+        if (!ItemUtil.TRANSPARENT_MATERIALS.contains(block.getType())) {
+            return false;
+        }
+        return true;
+    }
 
-        //Add offset based on blockface.
-        Location loc = new Location(mainBlock.getWorld(), x,y,z);
-        loc.add((double)face.getModX()*0.7f, (double)face.getModY()*0.7f, (double)face.getModZ()*0.7f);
-
-        return loc;
+    private boolean canAttachPortal(Block block) {
+        if (block == null) {
+            return false;
+        }
+        if (ItemUtil.TRANSPARENT_MATERIALS.contains(block.getType())) {
+            return false;
+        }
+        if (pg.getCfg().blockedPortalMaterials.contains(block.getType().toString())) {
+            return false;
+        }
+        return true;
     }
 
 }

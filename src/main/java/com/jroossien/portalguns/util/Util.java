@@ -1,5 +1,7 @@
 package com.jroossien.portalguns.util;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 
@@ -73,5 +75,30 @@ public class Util {
             return 90;
         }
         return playerYaw;
+    }
+
+    /**
+     * Get the absolute center location between two blocks of the x,y,z axis.
+     * @param block1 The first block.
+     * @param block2 The second block.
+     * @return The center location between the two blocks.
+     */
+    public static Location getCenter(Block block1, Block block2) {
+        double x = (double)(block1.getX() + block2.getX() + 1) / 2;
+        double y = (double)(block1.getY() + block2.getY() + 1) / 2;
+        double z = (double)(block1.getZ() + block2.getZ() + 1) / 2;
+        return new Location(block1.getWorld(), x, y, z);
+    }
+
+    /**
+     * Offset a location relative to a certain direction/blockface.
+     * @param location The location to offset (This instance gets modified).
+     * @param direction The direction to offset to.
+     * @param offset The amount of offset to add for example 0.5 adds half a block offset.
+     * @return The location that was passed in. (Not a new location!)
+     */
+    public static Location offsetLocation(Location location, BlockFace direction, double offset) {
+        location.add((double)direction.getModX() * offset, (double)direction.getModY() * offset, (double)direction.getModZ() * offset);
+        return location;
     }
 }

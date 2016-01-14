@@ -22,6 +22,13 @@ public enum Msg {
     INVALID_ENCHANT_VALUE(Cat.ITEM_PARSER, "&4{input} &cis not a valid enchantment level."),
     INVALID_POTION_VALUE(Cat.ITEM_PARSER, "&4{input} &cis not a valid potion effect value. It should be {duration}.{amplifier}&c."),
 
+    GUN_NAME(Cat.GUN, "&6&lPortal &9&lGun"),
+    INACTIVE_GUN(Cat.GUN, "&c&lBroken Portal Gun"),
+    GUN_UID_PREFIX(Cat.GUN, "&8&o"),
+    GUN_OWNER(Cat.GUN, "&6Owner&8: &a"),
+    GLOBAL_OWNER(Cat.GUN, "&e(Global gun!)"),
+    GUN_DESCRIPTION(Cat.GUN, "&7Left click to create the primary portal.\n&7Right click to create the secondary portal.\n&aShift click &7to open the &acontrol panel&7!"),
+
 
     ;
 
@@ -89,6 +96,7 @@ public enum Msg {
     private enum Cat {
         GENERAL,
         ITEM_PARSER,
+        GUN,
         ;
     }
 }

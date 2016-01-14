@@ -2,8 +2,8 @@ package com.jroossien.portalguns.guns;
 
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.config.GunCfg;
+import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.util.item.EItem;
-import org.bukkit.Material;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,10 +100,18 @@ public class GunManager {
         }
     }
 
+    public EItem getBlankGunItem() {
+        return new EItem(pg.getCfg().getGunMatData().getItemType(), 1, (short)pg.getCfg().getGunMatData().getData()).setName(Msg.GUN_NAME.getMsg())
+                .setLore(Msg.GUN_UID_PREFIX.getMsg(), Msg.GUN_OWNER.getMsg(), Msg.GUN_DESCRIPTION.getMsg()).makeGlowing(true);
+    }
+
     public EItem getGunItem(UUID gun) {
-        if (!hasGun(gun)) {
+        GunData data = getGun(gun);
+        if (data == null) {
             return null;
         }
-        return new EItem(Material.BREWING_STAND_ITEM).setName("&6&lPortal &9&lGun").setLore("&8&o" + gun.toString()).makeGlowing(true);
+        return new EItem(pg.getCfg().getGunMatData().getItemType(), 1, (short)pg.getCfg().getGunMatData().getData()).setName(Msg.GUN_NAME.getMsg())
+                .setLore(Msg.GUN_UID_PREFIX.getMsg() + gun.toString(), Msg.GUN_OWNER.getMsg() +
+                        (data.getOwner() == null ? Msg.GLOBAL_OWNER.getMsg() : pg.getServer().getOfflinePlayer(data.getOwner()).getName()), Msg.GUN_DESCRIPTION.getMsg()).makeGlowing(true);
     }
 }
