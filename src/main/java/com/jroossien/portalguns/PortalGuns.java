@@ -4,18 +4,25 @@ import com.jroossien.portalguns.commands.Commands;
 import com.jroossien.portalguns.config.GunCfg;
 import com.jroossien.portalguns.config.PluginCfg;
 import com.jroossien.portalguns.config.PortalCfg;
+import com.jroossien.portalguns.config.RecipesCfg;
 import com.jroossien.portalguns.config.messages.MessageCfg;
 import com.jroossien.portalguns.guns.GunManager;
 import com.jroossien.portalguns.listeners.MainListener;
 import com.jroossien.portalguns.portals.PortalManager;
+import com.jroossien.portalguns.util.item.ItemParser;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class PortalGuns extends JavaPlugin {
@@ -27,6 +34,7 @@ public class PortalGuns extends JavaPlugin {
     private PluginCfg cfg;
     private MessageCfg msgCfg;
     private PortalCfg portalCfg;
+    private RecipesCfg recipesCfg;
     private GunCfg gunCfg;
 
     private PortalManager pm;
@@ -61,6 +69,7 @@ public class PortalGuns extends JavaPlugin {
 
         cfg = new PluginCfg("plugins/PortalGuns/PortalGuns.yml");
         msgCfg = new MessageCfg("plugins/PortalGuns/Messages.yml");
+        recipesCfg = new RecipesCfg("plugins/PortalGuns/Recipes.yml");
         portalCfg = new PortalCfg("plugins/PortalGuns/data/Portals.yml");
         gunCfg = new GunCfg("plugins/PortalGuns/data/Guns.yml");
 
@@ -69,6 +78,7 @@ public class PortalGuns extends JavaPlugin {
 
         cmds = new Commands(this);
 
+        registerRecipes();
         registerListeners();
 
         log("loaded successfully");
@@ -83,10 +93,46 @@ public class PortalGuns extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MainListener(this), this);
     }
 
+    private void registerRecipes() {
+        if (!registerRecipe(gm.getBlankGunItem(), recipesCfg.personalGun__items, recipesCfg.personalGun__row1, recipesCfg.personalGun__row2, recipesCfg.personalGun__row3)) {
+            warn("Failed to register the personal gun recipe! Check your Recipes.yml config for errors!");
+        }
+        if (!registerRecipe(gm.getBlankGunItem(), recipesCfg.globalGun__items, recipesCfg.globalGun__row1, recipesCfg.globalGun__row2, recipesCfg.globalGun__row3)) {
+            warn("Failed to register the global gun recipe! Check your Recipes.yml config for errors!");
+        }
+    }
+
+    private boolean registerRecipe(ItemStack result, Map<String, Map<String, String>> ingredients, String... shape) {
+        ShapedRecipe recipe = new ShapedRecipe(result);
+        recipe.shape(shape);
+        for (Map<String, String> ingredient : ingredients.values()) {
+            if (!ingredient.containsKey("material")) {
+                return false;
+            }
+            MaterialData matData = ItemParser.getItem(ingredient.get("material"));
+            if (matData == null || matData.getItemType() == null || matData.getItemType() == Material.AIR) {
+                return false;
+            }
+            if (!ingredient.containsKey("char")) {
+                return false;
+            }
+            String character = ingredient.get("char");
+            if (character == null || character.isEmpty()) {
+                return false;
+            }
+            recipe.setIngredient(ingredient.get("char").toCharArray()[0], matData.getItemType());
+        }
+        getServer().addRecipe(recipe);
+        return true;
+    }
+
     public void log(Object msg) {
         log.info("[PortalGuns " + getDescription().getVersion() + "] " + msg.toString());
     }
 
+    public void warn(Object msg) {
+        log.warning("[PortalGuns " + getDescription().getVersion() + "] " + msg.toString());
+    }
 
     public static PortalGuns inst() {
         return instance;
@@ -107,6 +153,10 @@ public class PortalGuns extends JavaPlugin {
 
     public MessageCfg getMsgCfg() {
         return msgCfg;
+    }
+
+    public RecipesCfg getRecipes() {
+        return recipesCfg;
     }
 
     public PortalCfg getPortalCfg() {
