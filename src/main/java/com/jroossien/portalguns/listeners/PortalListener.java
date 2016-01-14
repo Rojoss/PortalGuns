@@ -29,12 +29,12 @@ import org.bukkit.util.Vector;
 import java.util.List;
 import java.util.UUID;
 
-public class MainListener implements Listener {
+public class PortalListener implements Listener {
 
     private PortalGuns pg;
     private BlockFace[] sides = {BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH};
 
-    public MainListener(PortalGuns pg) {
+    public PortalListener(PortalGuns pg) {
         this.pg = pg;
     }
 

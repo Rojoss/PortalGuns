@@ -7,7 +7,7 @@ import com.jroossien.portalguns.config.PortalCfg;
 import com.jroossien.portalguns.config.RecipesCfg;
 import com.jroossien.portalguns.config.messages.MessageCfg;
 import com.jroossien.portalguns.guns.GunManager;
-import com.jroossien.portalguns.listeners.MainListener;
+import com.jroossien.portalguns.listeners.PortalListener;
 import com.jroossien.portalguns.portals.PortalManager;
 import com.jroossien.portalguns.util.item.ItemParser;
 import net.milkbowl.vault.Vault;
@@ -90,7 +90,7 @@ public class PortalGuns extends JavaPlugin {
     }
 
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new MainListener(this), this);
+        getServer().getPluginManager().registerEvents(new PortalListener(this), this);
     }
 
     private void registerRecipes() {
