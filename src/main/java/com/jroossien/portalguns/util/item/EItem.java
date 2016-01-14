@@ -1,5 +1,6 @@
 package com.jroossien.portalguns.util.item;
 
+import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Util;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -402,7 +403,7 @@ public class EItem extends ItemStack {
     // ##################################################
 
     public EItem setColor(String color) {
-        return setColor(Util.getColor(color));
+        return setColor(Parse.Color(color));
     }
 
     public EItem setColor(Color color) {

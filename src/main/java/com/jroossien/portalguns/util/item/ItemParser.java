@@ -3,6 +3,7 @@ package com.jroossien.portalguns.util.item;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.config.messages.Param;
+import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Util;
 import net.milkbowl.vault.item.ItemInfo;
 import net.milkbowl.vault.item.Items;
@@ -49,16 +50,16 @@ public class ItemParser {
         Short data = 0;
 
         String[] nameSplit = sections.get(0).split(":");
-        if (Util.getInt(nameSplit[0]) != null) {
+        if (Parse.Int(nameSplit[0]) != null) {
             //Get item by Id
-            mat = Material.getMaterial(Util.getInt(nameSplit[0]));
+            mat = Material.getMaterial(Parse.Int(nameSplit[0]));
         } else {
             //Get item by name
             mat = Material.matchMaterial(nameSplit[0]);
         }
         //Get data/durability
         if (nameSplit.length > 1) {
-            data = Util.getShort(nameSplit[1]);
+            data = Parse.Short(nameSplit[1]);
         }
 
         //Get item through Vault.
@@ -90,7 +91,7 @@ public class ItemParser {
         Map<String, String> metaMap = new HashMap<String, String>();
         for (String section : sections) {
             //Amount
-            Integer intVal = Util.getInt(section);
+            Integer intVal = Parse.Int(section);
             if (intVal != null) {
                 item.setAmount(intVal);
                 continue;
@@ -124,7 +125,7 @@ public class ItemParser {
 
         //Color
         if (metaMap.containsKey("leather")) {
-            Color color = Util.getColor(metaMap.get("leather"));
+            Color color = Parse.Color(metaMap.get("leather"));
             if (color == null) {
                 error = Msg.INVALID_COLOR.getMsg(Param.P("{input}", metaMap.get("leather")));
                 if (!ignoreErrors) {
@@ -145,8 +146,8 @@ public class ItemParser {
         //Banners
         if (metaMap.containsKey("basecolor")) {
             DyeColor color;
-            if (Util.getByte(metaMap.get("basecolor")) != null) {
-                color = DyeColor.getByData(Util.getByte(metaMap.get("basecolor")));
+            if (Parse.Byte(metaMap.get("basecolor")) != null) {
+                color = DyeColor.getByData(Parse.Byte(metaMap.get("basecolor")));
             } else {
                 color = DyeColor.valueOf(metaMap.get("basecolor"));
             }
@@ -167,13 +168,13 @@ public class ItemParser {
         boolean hasShape = false;
         boolean hasColor = false;
         if (metaMap.containsKey("power")) {
-            if (Util.getInt(metaMap.get("power")) == null) {
+            if (Parse.Int(metaMap.get("power")) == null) {
                 error = Msg.NOT_A_NUMBER.getMsg(Param.P("{input}", metaMap.get("power")));
                 if (!ignoreErrors) {
                     return;
                 }
             } else {
-                item.setPower(Util.getInt(metaMap.get("power")));
+                item.setPower(Parse.Int(metaMap.get("power")));
             }
             metaMap.remove("power");
         }
@@ -195,7 +196,7 @@ public class ItemParser {
             String[] colorSplit = metaMap.get("color").split(";");
             List<Color> colors = new ArrayList<Color>();
             for (String color : colorSplit) {
-                Color clr = Util.getColor(color);
+                Color clr = Parse.Color(color);
                 if (clr == null) {
                     error = Msg.INVALID_COLOR.getMsg(Param.P("{input}", metaMap.get("color")));
                     if (!ignoreErrors) {
@@ -216,7 +217,7 @@ public class ItemParser {
             String[] colorSplit = metaMap.get("fade").split(";");
             List<Color> colors = new ArrayList<Color>();
             for (String color : colorSplit) {
-                Color clr = Util.getColor(color);
+                Color clr = Parse.Color(color);
                 if (clr == null) {
                     error = Msg.INVALID_COLOR.getMsg(Param.P("{input}", metaMap.get("fade")));
                     if (!ignoreErrors) {
@@ -233,14 +234,14 @@ public class ItemParser {
             hasFireworkMeta = true;
         }
         if (metaMap.containsKey("flicker")) {
-            if (Util.getBool(metaMap.get("flicker"))) {
+            if (Parse.Bool(metaMap.get("flicker"))) {
                 fireworkBuilder.withFlicker();
             }
             metaMap.remove("twinkle");
             hasFireworkMeta = true;
         }
         if (metaMap.containsKey("trail")) {
-            if (Util.getBool(metaMap.get("trail"))) {
+            if (Parse.Bool(metaMap.get("trail"))) {
                 fireworkBuilder.withTrail();
             }
             metaMap.remove("trail");
@@ -272,11 +273,11 @@ public class ItemParser {
                 //Enchantments
                 Enchantment enchant = Enchantment.getByName(entry.getKey());
                 if (enchant != null) {
-                    if (Util.getInt(entry.getValue()) == null) {
+                    if (Parse.Int(entry.getValue()) == null) {
                         error = Msg.INVALID_ENCHANT_VALUE.getMsg(Param.P("{input}", entry.getValue()));
                         return;
                     }
-                    item.addEnchant(enchant, Util.getInt(entry.getValue()));
+                    item.addEnchant(enchant, Parse.Int(entry.getValue()));
                     continue;
                 }
 
@@ -288,11 +289,11 @@ public class ItemParser {
                         error = Msg.INVALID_POTION_VALUE.getMsg(Param.P("{input}", entry.getValue()));
                         return;
                     }
-                    if (Util.getInt(split[0]) == null || Util.getInt(split[1]) == null) {
+                    if (Parse.Int(split[0]) == null || Parse.Int(split[1]) == null) {
                         error = Msg.INVALID_POTION_VALUE.getMsg(Param.P("{input}", entry.getValue()));
                         return;
                     }
-                    item.addEffect(new PotionEffect(effect, Util.getInt(split[0]), Util.getInt(split[1])), true);
+                    item.addEffect(new PotionEffect(effect, Parse.Int(split[0]), Parse.Int(split[1])), true);
                     continue;
                 }
 
@@ -303,8 +304,8 @@ public class ItemParser {
                 }
                 if (pattern != null) {
                     DyeColor color;
-                    if (Util.getByte(entry.getValue()) != null) {
-                        color = DyeColor.getByData(Util.getByte(entry.getValue()));
+                    if (Parse.Byte(entry.getValue()) != null) {
+                        color = DyeColor.getByData(Parse.Byte(entry.getValue()));
                     } else {
                         color = DyeColor.valueOf(entry.getValue());
                     }

@@ -1,6 +1,7 @@
 package com.jroossien.portalguns.util;
 
 import org.bukkit.*;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,9 +15,15 @@ import java.util.regex.Pattern;
 public class Util {
 
     private static Random random;
+    public static final Set<Material> TRANSPARENT_MATERIALS = new HashSet<Material>();
 
     static {
         random = new Random();
+        for (Material material : Material.values()) {
+            if (material.isTransparent()) {
+                TRANSPARENT_MATERIALS.add(material);
+            }
+        }
     }
 
     /**
@@ -220,155 +227,6 @@ public class Util {
     }
 
 
-    /**
-     * Get a Color from a string.
-     * The string can be either rrr,ggg,bbb or #hexhex or without the hashtag.
-     * It can also be a name of a color preset.
-     */
-    public static Color getColor(String string) {
-        if (string.isEmpty()) {
-            return Color.WHITE;
-        }
-        if (string.contains("#")) {
-            string = string.replace("#", "");
-        }
-
-        if (string.split(",").length > 2) {
-            return getColorFromRGB(string);
-        } else if (string.matches("[0-9A-Fa-f]+")) {
-            return getColorFromHex(string);
-        } else {
-            //TODO: Return color from preset.
-            return null;
-        }
-    }
-
-    public static Color getColorFromHex(String string) {
-        int c = 0;
-        if (string.contains("#")) {
-            string = string.replace("#", "");
-        }
-        if (string.matches("[0-9A-Fa-f]+")) {
-            return Color.fromRGB(Integer.parseInt(string, 16));
-        }
-        return null;
-    }
-
-    public static Color getColorFromRGB(String string) {
-        String[] split = string.split(",");
-        if (split.length < 3) {
-            return null;
-        }
-        Integer red = Util.getInt(split[0]);
-        Integer green = Util.getInt(split[1]);
-        Integer blue = Util.getInt(split[2]);
-        if (red == null || green == null || blue == null) {
-            return null;
-        }
-        return Color.fromRGB(Math.min(Math.max(red, 0), 255), Math.min(Math.max(green, 0), 255), Math.min(Math.max(blue, 0), 255));
-    }
-
-
-    /**
-     * Convert a string like 'true' to a Boolean. Returns null if it's invalid.
-     * @param str
-     * @return Boolean
-     */
-    public static Boolean getBool(String str) {
-        if (str == null) {
-            return null;
-        }
-        if (str.equalsIgnoreCase("true") || str.equalsIgnoreCase("yes") || str.equalsIgnoreCase("y") || str.equalsIgnoreCase("v")) {
-            return true;
-        }
-        if (str.equalsIgnoreCase("false") || str.equalsIgnoreCase("no") || str.equalsIgnoreCase("n") || str.equalsIgnoreCase("x")) {
-            return false;
-        }
-        return null;
-    }
-
-
-    /**
-     * Convert a string like '1' to a int. Returns null if it's invalid.
-     * @param str
-     * @return int
-     */
-    public static Integer getInt(String str) {
-        try {
-            return Integer.parseInt(str);
-        } catch (NumberFormatException e) {
-        }
-        return null;
-    }
-
-    /**
-     * Convert a string like '1' to a short. Returns null if it's invalid.
-     * @param str
-     * @return short
-     */
-    public static Short getShort(String str) {
-        try {
-            return Short.parseShort(str);
-        } catch (NumberFormatException e) {
-        }
-        return null;
-    }
-
-    /**
-     * Convert a string like '1' to a byte. Returns null if it's invalid.
-     * @param str
-     * @return byte
-     */
-    public static Byte getByte(String str) {
-        try {
-            return Byte.parseByte(str);
-        } catch (NumberFormatException e) {
-        }
-        return null;
-    }
-
-    /**
-     * Convert a string like '1' to a long. Returns null if it's invalid.
-     * @param str
-     * @return int
-     */
-    public static Long getLong(String str) {
-        try {
-            return Long.parseLong(str);
-        } catch (NumberFormatException e) {
-        }
-        return null;
-    }
-
-    /**
-     * Convert a string like '1.5' to a double. Returns null if it's invalid.
-     * @param str
-     * @return double
-     */
-    public static Double getDouble(String str) {
-        try {
-            return Double.parseDouble(str);
-        } catch (NumberFormatException e) {
-        }
-        return null;
-    }
-
-    /**
-     * Convert a string like '1.12' to a float. Returns null if it's invalid.
-     * @param str
-     * @return float
-     */
-    public static Float getFloat(String str) {
-        if (str != null && str != "") {
-            try {
-                return Float.parseFloat(str);
-            } catch (NumberFormatException e) {
-            }
-        }
-        return null;
-    }
-
-
     public static double lerp(double start, double end, double perc) {
         if (Double.isNaN(perc) || perc > 1) {
             return end;
@@ -408,147 +266,45 @@ public class Util {
         return false;
     }
 
-
-    public static boolean hasItems(Inventory inv, ItemStack item, int amt, boolean checkName, boolean checkDurability) {
-        for (int i = 0; i <= inv.getSize(); i++) {
-            ItemStack stack = inv.getItem(i);
-            if (stack == null) {
-                continue;
-            }
-            //Check if items match
-            if (!compareItems(stack, item, checkName, checkDurability)) {
-                continue;
-            }
-
-            //Remove the items
-            int stackAmt = stack.getAmount();
-            if (stackAmt >= amt) {
-                return true;
-            }
-            amt -= stackAmt;
-        }
-        return amt <= 0;
-    }
-
-
     /**
-     * Remove items from a Inventory.
-     * It'll check for items of the ItemStack you specified and it will try and remove the specified amt.
-     * If you set checkName to true it will only remove items with the exact same name and the same goes for durability.
-     * If there is a remainder what didn't get removed it will be returned.
-     * @param inv The inventory to remove the items from.
-     * @param item The item to remove (used to check type, durability, name etc)
-     * @param amt The amount of items to try and remove.
-     * @param checkName If set to true only items matching the name will be removed.
-     * @param checkDurability If set to true only items matching durability will be removed.
-     * @return Amount of items that didn't get removed. (remainder)
+     * Get yaw based on blockface.
+     * For example for DOWN it would be 90 to look down too.
+     * Only supports NORTH,EAST,SOUTH,WEST,UP & DOWN
+     * @param dir The block face direction.
+     * @param playerPitch When the block face isn't up or down it will return this value back.
+     * @return Pitch based on direction.
      */
-    public static int removeItems(Inventory inv, ItemStack item, int amt, boolean checkName, boolean checkDurability) {
-        int stackAmt;
-        for (int i = 0; i <= inv.getSize(); i++) {
-            ItemStack stack = inv.getItem(i);
-            if (stack == null) {
-                continue;
-            }
-            //Check if items match
-            if (!compareItems(stack, item, checkName, checkDurability)) {
-                continue;
-            }
-
-            //Remove the items
-            stackAmt = stack.getAmount();
-            if (stackAmt > amt) {
-                stack.setAmount(stackAmt - amt);
-                return 0;
-            }
-            inv.setItem(i, new ItemStack(Material.AIR));
-            if (stackAmt == amt) {
-                return 0;
-            }
-            amt -= stackAmt;
+    public static float getPitch(BlockFace dir, float playerPitch) {
+        if (dir == BlockFace.UP) {
+            return -90;
         }
-        return amt;
+        if (dir == BlockFace.DOWN) {
+            return 90;
+        }
+        return playerPitch;
     }
 
     /**
-     * Compare 2 ItemStack's with each other.
-     * If you set checkName to true it will only be called equal when both items have the same name and the same goes for durability.
-     * @param stack1 ItemStack 1 to compare with stack 2.
-     * @param stack2 ItemStack 2 to compare with stack 1.
-     * @param checkName If set to true only items matching the name will be removed.
-     * @param checkDurability If set to true only items matching durability will be removed.
-     * @return
+     * GEt yaw based on blockface.
+     * For example for NORTH it would reutrn 180 degrees to look towards NORTH.
+     * Only supports NORTH,EAST,SOUTH,WEST,UP & DOWN
+     * @param dir The block face direction.
+     * @param playerYaw  When the block face isn't sideways it will return this value back.
+     * @return Yaw based on direction.
      */
-    public static boolean compareItems(ItemStack stack1, ItemStack stack2, boolean checkName, boolean checkDurability) {
-        if (stack1.getType() != stack2.getType()) {
-            return false;
+    public static float getYaw(BlockFace dir, float playerYaw) {
+        if (dir == BlockFace.NORTH) {
+            return 180;
         }
-        if (checkDurability && stack1.getDurability() != stack2.getDurability()) {
-            return false;
+        if (dir == BlockFace.EAST) {
+            return 270;
         }
-        if (checkName && stack2.hasItemMeta()) {
-            if (!stack1.hasItemMeta() || !stack1.getItemMeta().getDisplayName().equalsIgnoreCase(stack2.getItemMeta().getDisplayName())) {
-                return false;
-            }
+        if (dir == BlockFace.SOUTH) {
+            return 0;
         }
-        return true;
-    }
-
-    public static String parseLocation(Location input) {
-        return  parseLocation(input, false);
-    }
-
-    public static String parseLocation(Location input, boolean blockLocation) {
-        if (input == null) {
-            return null;
+        if (dir == BlockFace.WEST) {
+            return 90;
         }
-        String x = (blockLocation || input.getX()%1 == 0) ? Integer.toString(input.getBlockX()) : Double.toString(input.getX());
-        String y = (blockLocation || input.getY()%1 == 0) ? Integer.toString(input.getBlockY()) : Double.toString(input.getY());
-        String z = (blockLocation || input.getZ()%1 == 0) ? Integer.toString(input.getBlockZ()) : Double.toString(input.getZ());
-
-        if (input.getYaw() == 0 && input.getPitch() == 0) {
-            return  x + "," + y + "," + z + ":" + input.getWorld().getName();
-        }
-        return  x + "," + y + "," + z + "," + input.getYaw() + "," + input.getPitch() + ":" + input.getWorld().getName();
-    }
-
-    public static Location parseLocation(String input) {
-        if (input == null || input.trim().isEmpty()) {
-            return null;
-        }
-
-        //Split string by semicolon like x,y,z:world or x,y,z:player
-        World world = null;
-        String[] split = input.split(":");
-        if (split.length > 1) {
-            //Get world.
-            world = Bukkit.getWorld(split[1]);
-        }
-        if (world == null) {
-            return null;
-        }
-
-        //Get the coords x,y,z[,yaw,pitch]
-        String[] coords = split[0].split(",");
-        if (coords.length < 3) {
-            return null;
-        }
-
-        Double x = Util.getDouble(coords[0]);
-        Double y = Util.getDouble(coords[1]);
-        Double z = Util.getDouble(coords[2]);
-        if (x == null || y == null || z == null) {
-            return null;
-        }
-
-        Location loc = new Location(world, x, y, z);
-        if (coords.length >= 4 && Util.getFloat(coords[3]) != null) {
-            loc.setYaw(Util.getFloat(coords[3]));
-        }
-        if (coords.length >= 5 && Util.getFloat(coords[4]) != null) {
-            loc.setPitch(Util.getFloat(coords[4]));
-        }
-
-        return loc;
+        return playerYaw;
     }
 }
