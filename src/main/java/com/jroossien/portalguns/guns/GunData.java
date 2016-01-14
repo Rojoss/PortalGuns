@@ -3,7 +3,6 @@ package com.jroossien.portalguns.guns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Str;
-import com.jroossien.portalguns.util.Util;
 import org.bukkit.Color;
 
 import java.util.*;
@@ -11,21 +10,31 @@ import java.util.*;
 public class GunData {
 
     private UUID uid;
+    private Short index;
     private GunType type;
     private UUID owner;
+    private Short durability;
     private UUID primaryPortal;
     private UUID secondaryPortal;
     private Color primaryColor;
     private Color secondaryColor;
+    private Long primaryCooldown;
+    private Long secondaryCooldown;
     private List<UUID> shares = new ArrayList<UUID>();
 
     public GunData(UUID uid, Map<String, String> data) {
         this.uid = uid;
+        if (data.containsKey("index")) {
+            index = Parse.Short(data.get("index"));
+        }
         if (data.containsKey("type")) {
             type = GunType.valueOf(data.get("type"));
         }
         if (data.containsKey("owner")) {
             owner = UUID.fromString(data.get("owner"));
+        }
+        if (data.containsKey("durability")) {
+            durability = Parse.Short(data.get("durability"));
         }
         if (data.containsKey("primaryPortal")) {
             primaryPortal = UUID.fromString(data.get("primaryPortal"));
@@ -38,6 +47,12 @@ public class GunData {
         }
         if (data.containsKey("secondaryColor")) {
             secondaryColor = Parse.Color(data.get("secondaryColor"));
+        }
+        if (data.containsKey("primaryCooldown")) {
+            primaryCooldown = Parse.Long(data.get("primaryCooldown"));
+        }
+        if (data.containsKey("secondaryCooldown")) {
+            secondaryCooldown = Parse.Long(data.get("secondaryCooldown"));
         }
         if (data.containsKey("shares")) {
             String[] split = data.get("shares").split(",");
@@ -63,12 +78,16 @@ public class GunData {
 
 
     public boolean isValid() {
-        return uid != null && type != null && (type == GunType.GLOBAL || owner != null);
+        return uid != null && index != null && type != null && (type == GunType.GLOBAL || owner != null);
     }
 
 
     public UUID getUid() {
         return uid;
+    }
+
+    public Short getIndex() {
+        return index;
     }
 
     public GunType getType() {
@@ -81,6 +100,18 @@ public class GunData {
 
     public void setOwner(UUID owner) {
         this.owner = owner;
+    }
+
+    public Short getDurability() {
+        return durability;
+    }
+
+    public void setDurability(short durability) {
+        this.durability = durability;
+    }
+
+    public void decreaseDurability() {
+        durability--;
     }
 
     public UUID getPortal(PortalType type) {
@@ -110,6 +141,36 @@ public class GunData {
             setPrimaryColor(color);
         } else {
             setSecondaryColor(color);
+        }
+    }
+
+    public boolean onCooldown(PortalType type) {
+        if (getCooldown(type) == null) {
+            return false;
+        }
+        return getCooldown(type) > System.currentTimeMillis();
+    }
+
+    public Long getCooldownTime(PortalType type) {
+        if (getCooldown(type) == null) {
+            return 0l;
+        }
+        return getCooldown(type) - System.currentTimeMillis();
+    }
+
+    public Long getCooldown(PortalType type) {
+        if (type == PortalType.PRIMARY) {
+            return getPrimaryCooldown();
+        } else {
+            return getSecondaryCooldown();
+        }
+    }
+
+    public void setCooldown(PortalType type, Long cooldown) {
+        if (type == PortalType.PRIMARY) {
+            setPrimaryCooldown(cooldown);
+        } else {
+            setSecondaryCooldown(cooldown);
         }
     }
 
@@ -145,6 +206,22 @@ public class GunData {
         this.secondaryColor = secondaryColor;
     }
 
+    public Long getPrimaryCooldown() {
+        return primaryCooldown;
+    }
+
+    public void setPrimaryCooldown(Long primaryCooldown) {
+        this.primaryCooldown = primaryCooldown;
+    }
+
+    public Long getSecondaryCooldown() {
+        return secondaryCooldown;
+    }
+
+    public void setSecondaryCooldown(Long secondaryCooldown) {
+        this.secondaryCooldown = secondaryCooldown;
+    }
+
     public void addShare(UUID player) {
         if (!shares.contains(player)) {
             shares.add(player);
@@ -165,8 +242,14 @@ public class GunData {
     public Map<String, String> getData() {
         Map<String, String> data = new HashMap<String, String>();
         data.put("type", type.toString());
+        if (index != null) {
+            data.put("index", index.toString());
+        }
         if (owner != null) {
             data.put("owner", owner.toString());
+        }
+        if (durability != null) {
+            data.put("durability", durability.toString());
         }
         if (primaryPortal != null) {
             data.put("primaryPortal", primaryPortal.toString());
@@ -179,6 +262,12 @@ public class GunData {
         }
         if (secondaryColor != null) {
             data.put("secondaryColor", secondaryColor.toString());
+        }
+        if (primaryCooldown != null) {
+            data.put("primaryCooldown", primaryCooldown.toString());
+        }
+        if (secondaryCooldown != null) {
+            data.put("secondaryCooldown", secondaryCooldown.toString());
         }
         if (shares != null && !shares.isEmpty()) {
             List<String> shareList = new ArrayList<String>();
