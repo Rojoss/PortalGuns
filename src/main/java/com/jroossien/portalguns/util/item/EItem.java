@@ -1,6 +1,7 @@
 package com.jroossien.portalguns.util.item;
 
 import com.jroossien.portalguns.util.Parse;
+import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -133,7 +134,7 @@ public class EItem extends ItemStack {
     public EItem setName(String name, Boolean color) {
         ItemMeta meta = getItemMeta();
         name = name.replaceAll("(?<!_)_(?!_)", " ");
-        meta.setDisplayName(color ? Util.color(name) : name);
+        meta.setDisplayName(color ? Str.color(name) : name);
         setItemMeta(meta);
         return this;
     }
@@ -179,12 +180,12 @@ public class EItem extends ItemStack {
 
     /** Set the lore lines. If color is set to true it will automatically format colors. */
     public EItem setLore(Boolean color, List<String> lore) {
-        lore = Util.splitNewLinesList(lore);
+        lore = Str.splitNewLines(lore);
         for (Integer i = 0; i < lore.size(); i++) {
             String loreStr = lore.get(i);
             loreStr = loreStr.replaceAll("(?<!_)_(?!_)", " ");
             if (color) {
-                loreStr = Util.color(loreStr);
+                loreStr = Str.color(loreStr);
             }
             lore.set(i,  loreStr);
         }
@@ -213,12 +214,12 @@ public class EItem extends ItemStack {
 
     /** Add the given lore lines to the current lore. If color is set to true it will automatically format colors. */
     public EItem addLore(Boolean color, List<String> lore) {
-        lore = Util.splitNewLinesList(lore);
+        lore = Str.splitNewLines(lore);
         for (Integer i = 0; i < lore.size(); i++) {
             String loreStr = lore.get(i);
             loreStr = loreStr.replaceAll("(?<!_)_(?!_)", " ");
             if (color) {
-                loreStr = Util.color(loreStr);
+                loreStr = Str.color(loreStr);
             }
             lore.set(i,  loreStr);
         }
@@ -253,7 +254,7 @@ public class EItem extends ItemStack {
     public EItem setLore(Integer lineNr, String lore, Boolean color) {
         lore = lore.replaceAll("(?<!_)_(?!_)", " ");
         if (color) {
-            lore = Util.color(lore);
+            lore = Str.color(lore);
         }
         ItemMeta meta = getItemMeta();
 

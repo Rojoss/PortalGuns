@@ -2,6 +2,7 @@ package com.jroossien.portalguns.guns;
 
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.util.Parse;
+import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import org.bukkit.Color;
 
@@ -184,7 +185,7 @@ public class GunData {
             for (UUID share : shares) {
                 shareList.add(share.toString());
             }
-            data.put("shares", Util.implode(shareList, ","));
+            data.put("shares", Str.implode(shareList, ","));
         }
         return data;
     }

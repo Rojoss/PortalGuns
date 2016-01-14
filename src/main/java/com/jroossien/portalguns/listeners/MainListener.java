@@ -4,9 +4,9 @@ import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.portals.PortalData;
+import com.jroossien.portalguns.util.ItemUtil;
+import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
-import com.jroossien.portalguns.util.particles.ParticleEffect;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -91,7 +91,7 @@ public class MainListener implements Listener {
         event.setCancelled(true);
 
         //Get the gun.
-        UUID gunUid = UUID.fromString(Util.stripAllColor(meta.getLore().get(0)));
+        UUID gunUid = UUID.fromString(Str.stripColor(meta.getLore().get(0)));
         GunData gun = pg.getGM().getGun(gunUid);
         if (gun == null) {
             //TODO: Fail...
@@ -103,12 +103,12 @@ public class MainListener implements Listener {
         Block block = clickBlock ? event.getClickedBlock() : null;
         BlockFace face = clickBlock ? event.getBlockFace() : null;
         if (!clickBlock) {
-            List<Block> blocks = player.getLastTwoTargetBlocks(Util.TRANSPARENT_MATERIALS, pg.getCfg().portalgun__maxUseDistance);
+            List<Block> blocks = player.getLastTwoTargetBlocks(ItemUtil.TRANSPARENT_MATERIALS, pg.getCfg().portalgun__maxUseDistance);
             block = blocks.get(1);
             face = blocks.get(1).getFace(blocks.get(0));
         }
         //TODO: Check if portal can be attached to this block.
-        if (block == null || Util.TRANSPARENT_MATERIALS.contains(block.getType())) {
+        if (block == null || ItemUtil.TRANSPARENT_MATERIALS.contains(block.getType())) {
             //TODO: Fail...
             return;
         }
@@ -169,7 +169,7 @@ public class MainListener implements Listener {
                 if (sideBlock.getType() == Material.AIR) {
                     continue;
                 }
-                if (!Util.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
+                if (!ItemUtil.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
                     continue;
                 }
                 return sideBlock;
@@ -178,11 +178,11 @@ public class MainListener implements Listener {
         } else {
             Block sideBlock = block.getRelative(BlockFace.UP);
             //TODO: Check if portal can be attached to this block.
-            if (sideBlock.getType() == Material.AIR || !Util.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
+            if (sideBlock.getType() == Material.AIR || !ItemUtil.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
                 //Try creating portal downwards
                 sideBlock = block.getRelative(BlockFace.DOWN);
                 //TODO: Check if portal can be attached to this block.
-                if (sideBlock.getType() == Material.AIR || !Util.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
+                if (sideBlock.getType() == Material.AIR || !ItemUtil.TRANSPARENT_MATERIALS.contains(sideBlock.getRelative(face).getType())) {
                     return null;
                 }
             }

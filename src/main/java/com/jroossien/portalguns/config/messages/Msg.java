@@ -1,5 +1,6 @@
 package com.jroossien.portalguns.config.messages;
 
+import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -60,7 +61,7 @@ public enum Msg {
             message = message.replace(p.getParam(), p.toString());
         }
         if (color) {
-            message = Util.color(message);
+            message = Str.color(message);
         }
         return message;
     }

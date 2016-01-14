@@ -4,6 +4,7 @@ import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.config.messages.Param;
 import com.jroossien.portalguns.util.Parse;
+import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import net.milkbowl.vault.item.ItemInfo;
 import net.milkbowl.vault.item.Items;
@@ -43,7 +44,7 @@ public class ItemParser {
         }
 
         EItem item = new EItem(Material.AIR);
-        List<String> sections = Util.splitQuotedString(string.trim());
+        List<String> sections = Str.splitQuotes(string.trim());
 
         //Item:data
         Material mat = null;
@@ -351,20 +352,20 @@ public class ItemParser {
 
         //No meta
         if (!item.hasItemMeta()) {
-            this.string = Util.implode(components, " ");
+            this.string = Str.implode(components, " ");
             return;
         }
         ItemMeta meta = item.getItemMeta();
 
         //Name
         if (meta.hasDisplayName()) {
-            components.add("name:" + Util.removeColor(meta.getDisplayName()).replaceAll(" ", "_"));
+            components.add("name:" + Str.replaceColor(meta.getDisplayName()).replaceAll(" ", "_"));
         }
 
         //Lore
         if (meta.hasLore()) {
-            String lore = Util.implode(meta.getLore(), "|");
-            components.add("lore:" + Util.removeColor(lore).replaceAll(" ", "_"));
+            String lore = Str.implode(meta.getLore(), "|");
+            components.add("lore:" + Str.replaceColor(lore).replaceAll(" ", "_"));
         }
 
         //Enchants
@@ -421,7 +422,7 @@ public class ItemParser {
                         for (Color color : effect.getColors()) {
                             colors.add(String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()));
                         }
-                        components.add("color:" + Util.implode(colors, ";"));
+                        components.add("color:" + Str.implode(colors, ";"));
                     }
 
                     if (effect.getFadeColors() != null && effect.getFadeColors().size() > 0) {
@@ -429,7 +430,7 @@ public class ItemParser {
                         for (Color color : effect.getFadeColors()) {
                             colors.add(String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()));
                         }
-                        components.add("fade:" + Util.implode(colors, ";"));
+                        components.add("fade:" + Str.implode(colors, ";"));
                     }
                 }
             }
@@ -446,7 +447,7 @@ public class ItemParser {
         }
 
         //DONE PARSING!
-        this.string = Util.implode(components, " ");
+        this.string = Str.implode(components, " ");
     }
 
 

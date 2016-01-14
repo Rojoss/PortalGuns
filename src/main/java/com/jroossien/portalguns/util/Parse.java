@@ -68,7 +68,7 @@ public class Parse {
         for (Object obj : list) {
             values.add(obj.toString());
         }
-        return Util.implode(values, ",");
+        return Str.implode(values, ",");
     }
 
     /**
