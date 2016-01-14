@@ -14,6 +14,7 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
+import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -28,6 +29,48 @@ public class ItemParser {
     private EItem item = null;
     private String error = "";
     private boolean success = false;
+
+    /**
+     * Get the item material/data from the input string.
+     * Supports material names and ids and it will get optional data after a semicolon.
+     * If vault is enabled it will also try to fetch the item through Vault if it's not found.
+     * Examples: stone, wool:10, 276:100 etc.
+     * @param input The input string to parse.
+     * @return The MaterialData with item type and data. Null if the input is invalid like an unknown item..
+     */
+    public static MaterialData getItem(String input) {
+        if (input == null || input.isEmpty()) {
+            return null;
+        }
+        Material mat = null;
+        Byte data = 0;
+
+        String[] nameSplit = input.split(":");
+        if (Parse.Int(nameSplit[0]) != null) {
+            //Get item by Id
+            mat = Material.getMaterial(Parse.Int(nameSplit[0]));
+        } else {
+            //Get item by name
+            mat = Material.matchMaterial(nameSplit[0]);
+        }
+        //Get data/durability
+        if (nameSplit.length > 1) {
+            data = Parse.Byte(nameSplit[1]);
+        }
+
+        //Get item through Vault.
+        if (mat == null && PortalGuns.inst().getVault() != null) {
+            ItemInfo itemInfo = Items.itemByName(input);
+            if (itemInfo != null) {
+                mat = itemInfo.getType();
+                data = (byte)itemInfo.getSubTypeId();
+            }
+        }
+        if (mat == null || data == null || data < 0) {
+            return null;
+        }
+        return new MaterialData(mat, data);
+    }
 
     /**
      * Parse the given string in to a item.
@@ -46,38 +89,13 @@ public class ItemParser {
         EItem item = new EItem(Material.AIR);
         List<String> sections = Str.splitQuotes(string.trim());
 
-        //Item:data
-        Material mat = null;
-        Short data = 0;
-
-        String[] nameSplit = sections.get(0).split(":");
-        if (Parse.Int(nameSplit[0]) != null) {
-            //Get item by Id
-            mat = Material.getMaterial(Parse.Int(nameSplit[0]));
-        } else {
-            //Get item by name
-            mat = Material.matchMaterial(nameSplit[0]);
-        }
-        //Get data/durability
-        if (nameSplit.length > 1) {
-            data = Parse.Short(nameSplit[1]);
-        }
-
-        //Get item through Vault.
-        if (mat == null && PortalGuns.inst().getVault() != null) {
-            ItemInfo itemInfo = Items.itemByName(sections.get(0));
-            if (itemInfo != null) {
-                mat = itemInfo.getType();
-                data = itemInfo.getSubTypeId();
-            }
-        }
-
-        if (mat == null) {
+        MaterialData matData = getItem(sections.get(0));
+        if (matData == null || matData.getItemType() == null) {
             error = Msg.UNKNOWN_ITEM_NAME.getMsg(Param.P("{input}", sections.get(0)));
             return;
         }
-        item.setType(mat);
-        item.setDurability(data == null ? 0 : data);
+        item.setType(matData.getItemType());
+        item.setDurability(matData.getData() < 0 ? 0 : matData.getData());
         item.setAmount(1); //Default
 
         //If it's air or if there is no meta specified we're done parsing...
