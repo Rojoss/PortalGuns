@@ -83,10 +83,10 @@ public class ItemUtil {
         if (item.getType() != match.getType()) {
             return false;
         }
-        if (item.getData() != match.getData()) {
+        if (durability && item.getDurability() != match.getDurability()) {
             return false;
         }
-        if (durability && item.getDurability() != match.getDurability()) {
+        if (!durability && item.getDurability() != match.getDurability() && item.getType().getMaxDurability() == 0 && match.getType().getMaxDurability() == 0) {
             return false;
         }
         if (amount && item.getAmount() != match.getAmount()) {
