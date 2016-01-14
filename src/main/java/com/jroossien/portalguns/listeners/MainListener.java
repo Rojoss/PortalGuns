@@ -98,6 +98,7 @@ public class MainListener implements Listener {
         GunData gun = pg.getGM().getGun(gunUid);
         if (gun == null) {
             item.setName(Msg.INACTIVE_GUN.getMsg());
+            player.setItemInHand(item);
             return;
         }
 
@@ -110,6 +111,7 @@ public class MainListener implements Listener {
         //Update owner name if player changed name.
         if (gun.getOwner() != null) {
             item.setLore(1, Msg.GUN_OWNER.getMsg() + player.getName());
+            player.setItemInHand(item);
         }
 
 
