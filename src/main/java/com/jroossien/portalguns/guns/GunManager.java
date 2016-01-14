@@ -42,6 +42,9 @@ public class GunManager {
     }
 
     public boolean hasGun(UUID uid) {
+        if (uid == null) {
+            return false;
+        }
         return guns.containsKey(uid);
     }
 
@@ -63,7 +66,7 @@ public class GunManager {
         }
     }
 
-    public boolean createGun(GunType type, UUID owner) {
+    public GunData createGun(GunType type, UUID owner) {
         UUID uid = UUID.randomUUID();
         while (guns.containsKey(uid)) {
             uid = UUID.randomUUID();
@@ -71,7 +74,7 @@ public class GunManager {
 
         GunData data = new GunData(uid, type, owner);
         if (!data.isValid()) {
-            return false;
+            return null;
         }
 
         guns.put(uid, data);
@@ -79,10 +82,28 @@ public class GunManager {
 
         //TODO: Don't save for every gun creation.
         cfg.save();
-        return true;
+        return data;
     }
 
-    public EItem getGunItem() {
-        return new EItem(Material.BREWING_STAND_ITEM).setName("&6&lPortal &9&lGun").makeGlowing(true);
+    public void saveGun(UUID uid, boolean saveConfig) {
+        saveGun(getGun(uid), saveConfig);
+    }
+
+    public void saveGun(GunData data, boolean saveConfig) {
+        if (data == null) {
+            return;
+        }
+        guns.put(data.getUid(), data);
+        cfg.guns.put(data.getUid().toString(), data.getData());
+        if (saveConfig) {
+            cfg.save();
+        }
+    }
+
+    public EItem getGunItem(UUID gun) {
+        if (!hasGun(gun)) {
+            return null;
+        }
+        return new EItem(Material.BREWING_STAND_ITEM).setName("&6&lPortal &9&lGun").setLore("&8&o" + gun.toString()).makeGlowing(true);
     }
 }

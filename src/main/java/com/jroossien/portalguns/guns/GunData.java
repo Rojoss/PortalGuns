@@ -1,6 +1,7 @@
 package com.jroossien.portalguns.guns;
 
 import com.jroossien.portalguns.PortalType;
+import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Util;
 import org.bukkit.Color;
 
@@ -32,10 +33,10 @@ public class GunData {
             secondaryPortal = UUID.fromString(data.get("secondaryPortal"));
         }
         if (data.containsKey("primaryColor")) {
-            primaryColor = Util.getColor(data.get("primaryColor"));
+            primaryColor = Parse.Color(data.get("primaryColor"));
         }
         if (data.containsKey("secondaryColor")) {
-            secondaryColor = Util.getColor(data.get("secondaryColor"));
+            secondaryColor = Parse.Color(data.get("secondaryColor"));
         }
         if (data.containsKey("shares")) {
             String[] split = data.get("shares").split(",");
@@ -175,7 +176,7 @@ public class GunData {
         if (primaryColor != null) {
             data.put("primaryColor", primaryColor.toString());
         }
-        if (secondaryPortal != null) {
+        if (secondaryColor != null) {
             data.put("secondaryColor", secondaryColor.toString());
         }
         if (shares != null && !shares.isEmpty()) {

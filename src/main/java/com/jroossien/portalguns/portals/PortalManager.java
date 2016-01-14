@@ -1,8 +1,11 @@
 package com.jroossien.portalguns.portals;
 
 import com.jroossien.portalguns.PortalGuns;
+import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.config.PortalCfg;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,12 +15,16 @@ public class PortalManager {
 
     private PortalGuns pg;
     private PortalCfg cfg;
+    private PortalRunnable runnable;
     private Map<UUID, PortalData> portals = new HashMap<UUID, PortalData>();
 
     public PortalManager(PortalGuns pg) {
         this.pg = pg;
         this.cfg = pg.getPortalCfg();
         loadPortals();
+
+        runnable = new PortalRunnable(this);
+        runnable.runTaskTimer(pg, 1, 1);
     }
 
     public void loadPortals() {
@@ -41,6 +48,9 @@ public class PortalManager {
     }
 
     public boolean hasPortal(UUID uid) {
+        if (uid == null) {
+            return false;
+        }
         return portals.containsKey(uid);
     }
 
@@ -62,15 +72,15 @@ public class PortalManager {
         }
     }
 
-    public boolean createPortal(UUID gunUid, Location location, PortalIndex index, PortalDirection direction) {
+    public PortalData createPortal(UUID gunUid, Location center, Block block1, Block block2, PortalType type, BlockFace direction, BlockFace secondaryDirection) {
         UUID uid = UUID.randomUUID();
         while (portals.containsKey(uid)) {
             uid = UUID.randomUUID();
         }
 
-        PortalData data = new PortalData(uid, gunUid, location, index, direction);
+        PortalData data = new PortalData(uid, gunUid, center, block1, block2, type, direction, secondaryDirection);
         if (!data.isValid()) {
-            return false;
+            return null;
         }
 
         portals.put(uid, data);
@@ -78,6 +88,25 @@ public class PortalManager {
 
         //TODO: Don't save for every portal creation.
         cfg.save();
-        return true;
+        return data;
+    }
+
+    public void savePortal(UUID uid, boolean saveConfig) {
+        savePortal(getPortal(uid), saveConfig);
+    }
+
+    public void savePortal(PortalData data, boolean saveConfig) {
+        if (data == null) {
+            return;
+        }
+        portals.put(data.getUid(), data);
+        cfg.portals.put(data.getUid().toString(), data.getData());
+        if (saveConfig) {
+            cfg.save();
+        }
+    }
+
+    public Map<UUID, PortalData> getPortals() {
+        return portals;
     }
 }
