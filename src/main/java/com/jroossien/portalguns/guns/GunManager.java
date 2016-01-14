@@ -5,9 +5,7 @@ import com.jroossien.portalguns.config.GunCfg;
 import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.util.item.EItem;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class GunManager {
 
@@ -55,6 +53,73 @@ public class GunManager {
         return null;
     }
 
+    public GunData getPlayerGun(UUID player, short index) {
+        for (GunData gun : guns.values()) {
+            if (!gun.isValid()) {
+                continue;
+            }
+            if (gun.getIndex() != index) {
+                continue;
+            }
+            if (gun.getOwner() == null || !gun.getOwner().equals(player)) {
+                continue;
+            }
+            return gun;
+        }
+        return null;
+    }
+
+    public List<GunData> getPlayerGuns(UUID player) {
+        List<GunData> playerGuns = new ArrayList<GunData>();
+        for (GunData gun : guns.values()) {
+            if (!gun.isValid()) {
+                continue;
+            }
+            if (gun.getOwner() == null || !gun.getOwner().equals(player)) {
+                continue;
+            }
+            playerGuns.add(gun);
+        }
+        return playerGuns;
+    }
+
+    public List<GunData> getGlobalGuns() {
+        List<GunData> globalGuns = new ArrayList<GunData>();
+        for (GunData gun : guns.values()) {
+            if (!gun.isValid()) {
+                continue;
+            }
+            if (gun.getType() != GunType.GLOBAL) {
+                continue;
+            }
+            globalGuns.add(gun);
+        }
+        return globalGuns;
+    }
+
+    public Short getAvailableIndex(UUID owner) {
+        List<GunData> gunList;
+        if (owner == null) {
+            gunList = getGlobalGuns();
+        } else {
+            gunList = getPlayerGuns(owner);
+        }
+        List<Short> indexes = new ArrayList<Short>();
+        for (GunData gun : gunList) {
+            if (gun.getIndex() == null) {
+                continue;
+            }
+            indexes.add(gun.getIndex());
+        }
+        //256 hard limit for guns (per player/global)
+        for (short i = 0; i < 256; i++) {
+            if (!indexes.contains(i)) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     public void deleteGun(UUID uid) {
         if (cfg.guns.containsKey(uid.toString())) {
             cfg.guns.remove(uid.toString());
@@ -66,13 +131,13 @@ public class GunManager {
         }
     }
 
-    public GunData createGun(GunType type, UUID owner) {
+    public GunData createGun(GunType type, short index, UUID owner) {
         UUID uid = UUID.randomUUID();
         while (guns.containsKey(uid)) {
             uid = UUID.randomUUID();
         }
 
-        GunData data = new GunData(uid, type, owner);
+        GunData data = new GunData(uid, index, type, owner);
         if (!data.isValid()) {
             return null;
         }

@@ -65,13 +65,15 @@ public class GunData {
         }
     }
 
-    public GunData(UUID uid, GunType type) {
+    public GunData(UUID uid, short index, GunType type) {
         this.uid = uid;
+        this.index = index;
         this.type = type;
     }
 
-    public GunData(UUID uid, GunType type, UUID owner) {
+    public GunData(UUID uid, short index, GunType type, UUID owner) {
         this.uid = uid;
+        this.index = index;
         this.type = type;
         this.owner = owner;
     }
