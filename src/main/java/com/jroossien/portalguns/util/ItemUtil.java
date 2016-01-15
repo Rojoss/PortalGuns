@@ -74,11 +74,14 @@ public class ItemUtil {
      * @return true if everything specified matched and false if any matches failed.
      */
     public static boolean compare(ItemStack item, ItemStack match, boolean amount, boolean durability, boolean meta, boolean name) {
-        if (item == null && match == null || item.getType() == Material.AIR && match.getType() == Material.AIR) {
+        if (item == null && match == null) {
             return true;
         }
         if (item == null || match == null) {
             return false;
+        }
+        if (item.getType() == Material.AIR && match.getType() == Material.AIR) {
+            return true;
         }
         if (item.getType() != match.getType()) {
             return false;
