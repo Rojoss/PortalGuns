@@ -16,7 +16,8 @@ public class PortalRunnable extends BukkitRunnable {
     private PortalManager pm;
 
     private int step = 0;
-    private final int degrees = 15;
+    private final int particles = 20;
+    //private final double degrees = (double)360 / particles;
     private final double width = 0.45f;
     private final double length = 0.9f;
 
@@ -48,18 +49,23 @@ public class PortalRunnable extends BukkitRunnable {
                 }
             }
 
-            double inc = (2 * Math.PI) / degrees;
-            double angle = step * inc;
+            for (int i = 0; i <= 1; i++) {
+                double inc = (2 * Math.PI) / particles;
+                double angle = (step + (i == 1 ? particles/2 : 0)) * inc;
 
-            double widthAxis = Math.cos(angle) * width;
-            double lengthAxis = Math.sin(angle) * length;
+                double widthAxis = Math.cos(angle) * width;
+                double lengthAxis = Math.sin(angle) * length;
 
-            Vector v = rotateVector(widthAxis, lengthAxis, portal.getDirection(), portal.getSecondaryDirection());
+                Vector v = rotateVector(widthAxis, lengthAxis, portal.getDirection(), portal.getSecondaryDirection());
 
-            ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), 32);
-            loc.subtract(v);
+                ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), 32);
+                loc.subtract(v);
+            }
         }
         step++;
+        if (step >= particles) {
+            step = 0;
+        }
     }
 
     private Vector rotateVector(double widthAxis, double lengthAxis, BlockFace dir, BlockFace secondaryDir) {
