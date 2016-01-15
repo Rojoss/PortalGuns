@@ -7,6 +7,8 @@ import com.jroossien.portalguns.config.PortalCfg;
 import com.jroossien.portalguns.config.RecipesCfg;
 import com.jroossien.portalguns.config.messages.MessageCfg;
 import com.jroossien.portalguns.guns.GunManager;
+import com.jroossien.portalguns.listeners.CraftListener;
+import com.jroossien.portalguns.listeners.MainListener;
 import com.jroossien.portalguns.listeners.PortalListener;
 import com.jroossien.portalguns.portals.PortalManager;
 import com.jroossien.portalguns.util.item.ItemParser;
@@ -39,6 +41,8 @@ public class PortalGuns extends JavaPlugin {
 
     private PortalManager pm;
     private GunManager gm;
+
+    private CraftListener craftListener;
 
     private Commands cmds;
 
@@ -78,8 +82,8 @@ public class PortalGuns extends JavaPlugin {
 
         cmds = new Commands(this);
 
-        registerRecipes();
         registerListeners();
+        registerRecipes();
 
         log("loaded successfully");
     }
@@ -90,14 +94,17 @@ public class PortalGuns extends JavaPlugin {
     }
 
     private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new MainListener(this), this);
+        craftListener = new CraftListener(this);
+        getServer().getPluginManager().registerEvents(craftListener, this);
         getServer().getPluginManager().registerEvents(new PortalListener(this), this);
     }
 
     private void registerRecipes() {
-        if (!registerRecipe(gm.getBlankGunItem(), recipesCfg.personalGun__items, recipesCfg.personalGun__row1, recipesCfg.personalGun__row2, recipesCfg.personalGun__row3)) {
+        if (!registerRecipe(craftListener.getGunItem(false), recipesCfg.personalGun__items, recipesCfg.personalGun__row1, recipesCfg.personalGun__row2, recipesCfg.personalGun__row3)) {
             warn("Failed to register the personal gun recipe! Check your Recipes.yml config for errors!");
         }
-        if (!registerRecipe(gm.getBlankGunItem(), recipesCfg.globalGun__items, recipesCfg.globalGun__row1, recipesCfg.globalGun__row2, recipesCfg.globalGun__row3)) {
+        if (!registerRecipe(craftListener.getGunItem(true), recipesCfg.globalGun__items, recipesCfg.globalGun__row1, recipesCfg.globalGun__row2, recipesCfg.globalGun__row3)) {
             warn("Failed to register the global gun recipe! Check your Recipes.yml config for errors!");
         }
     }

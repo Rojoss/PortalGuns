@@ -28,6 +28,9 @@ public enum Msg {
     GUN_OWNER(Cat.GUN, "&6Owner&8: &a"),
     GLOBAL_OWNER(Cat.GUN, "&e(Global gun!)"),
     GUN_DESCRIPTION(Cat.GUN, "&7Left click to create the primary portal.\n&7Right click to create the secondary portal.\n&aShift click &7to open the &acontrol panel&7!"),
+    CRAFT_NEW(Cat.GUN, "&7Craft a new portal gun!"),
+    CRAFT_COPY(Cat.GUN, "&7Craft a copy of your previous gun!"),
+    CRAFT_GUN_INFO_SEPARATOR(Cat.GUN, "&7------------------"),
 
 
     ;
