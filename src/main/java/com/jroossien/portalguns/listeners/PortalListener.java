@@ -47,6 +47,9 @@ public class PortalListener implements Listener {
             if (!portal.isValid()) {
                 continue;
             }
+            if (portal.onCooldown()) {
+                return;
+            }
             if (!portal.getBlock1().equals(event.getTo().getBlock()) && !portal.getBlock2().equals(event.getTo().getBlock())) {
                 continue;
             }
@@ -55,23 +58,33 @@ public class PortalListener implements Listener {
                 return;
             }
 
-            //Get the other portal location.
+            //Get the other portal.
             PortalData otherportal = pg.getPM().getPortal(gun.getPortal(portal.getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
-            Location targetLoc = otherportal.getCenter().clone();
-
-            //Add some offset so you don't spawn inside the portal.
-            Vector offset = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
-            if (otherportal.getDirection() != BlockFace.UP) {
-                offset.setY(offset.getY() - (otherportal.getDirection() == BlockFace.DOWN ? 1.5d : 1));
+            if (otherportal == null) {
+                return;
             }
-            targetLoc.add(offset);
+
+            //Put the other portal on cooldown to fix infinite looping with portals on the ground.
+            otherportal.setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
+
+            //Get location and add some offset to prevent glitching in blocks.
+            Location targetLoc = otherportal.getCenter().clone();
+            //
+            if (otherportal.getDirection() == BlockFace.DOWN) {
+                targetLoc.add(0,-1.5f,0);
+            } else if (otherportal.getDirection() != BlockFace.UP) {
+                targetLoc.add(0,-1,0);
+            }
 
             //Calculate pitch and yaw to look away from the portal.
             targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), event.getPlayer().getLocation().getYaw()));
-            targetLoc.setPitch(Util.getPitch(otherportal.getDirection(), event.getPlayer().getLocation().getPitch()));
+            targetLoc.setPitch(event.getPlayer().getLocation().getPitch());
 
             //Teleport!
             event.setTo(targetLoc);
+            event.getPlayer().teleport(targetLoc);
+            Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
+            event.getPlayer().setVelocity(velocity.multiply(0.2f));
             return;
         }
     }

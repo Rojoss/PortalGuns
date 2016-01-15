@@ -79,7 +79,8 @@ public class PortalManager {
             uid = UUID.randomUUID();
         }
 
-        PortalData data = new PortalData(uid, gunUid, center, block1, block2, type, direction, secondaryDirection);
+        //TODO: Don't set portals to be not persistent by default.
+        PortalData data = new PortalData(uid, gunUid, center, block1, block2, direction, secondaryDirection, type, false);
         if (!data.isValid()) {
             return null;
         }

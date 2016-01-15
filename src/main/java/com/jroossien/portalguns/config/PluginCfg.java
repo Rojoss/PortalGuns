@@ -19,6 +19,9 @@ public class PluginCfg extends EasyConfig {
     public String portalgun__primaryColor = "0,80,255";
     public String portalgun__secondaryColor = "255,200,0";
     public String portalgun__item = "BREWING_STAND_ITEM:0";
+
+    public int portal__fixDelay = 2000;
+
     public List<String> blockedPortalMaterials = Arrays.asList("LAVA", "STATIONARY_LAVA", "WATER", "STATIONARY_WATER", "STANDING_BANNER", "BREWING_STAND", "BED_BLOCK", "SIGN_POST", "WALL_SIGN", "IRON_FENCE",
             "FENCE", "FENCE_GATE", "BIRCH_FENCE", "BIRCH_FENCE_GATE", "SPRUCE_FENCE", "SPRUCE_FENCE_GATE", "JUNGLE_FENCE", "JUNGLE_FENCE_GATE", "ACACIA_FENCE", "ACACIA_FENCE_GATE",
             "DARK_OAK_FENCE", "DARK_OAK_FENCE_GATE", "NETHER_FENCE", "FENCE_GATE", "COBBLE_WALL", "WOODEN_DOOR", "BIRCH_DOOR", "SPRUCE_DOOR", "JUNGLE_DOOR", "ACACIA_DOOR", "DARK_OAK_DOOR",
