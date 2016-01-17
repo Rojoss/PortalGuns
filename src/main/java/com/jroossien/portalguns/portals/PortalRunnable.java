@@ -3,12 +3,17 @@ package com.jroossien.portalguns.portals;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.guns.GunData;
+import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.util.particles.ParticleEffect;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PortalRunnable extends BukkitRunnable {
 
@@ -17,7 +22,6 @@ public class PortalRunnable extends BukkitRunnable {
 
     private int step = 0;
     private final int particles = 20;
-    //private final double degrees = (double)360 / particles;
     private final double width = 0.45f;
     private final double length = 0.9f;
 
@@ -54,7 +58,11 @@ public class PortalRunnable extends BukkitRunnable {
 
                 Vector v = rotateVector(widthAxis, lengthAxis, portal.getDirection(), portal.getSecondaryDirection());
 
-                ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), 32);
+                if (gun.getType() == GunType.GLOBAL || pg.getCfg().portal__alwaysVisible) {
+                    ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), 32);
+                } else {
+                    ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), gun.getPlayers());
+                }
                 loc.subtract(v);
             }
         }
