@@ -10,7 +10,6 @@ import com.jroossien.portalguns.util.*;
 import com.jroossien.portalguns.util.item.EItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -21,8 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -70,6 +67,18 @@ public class PortalListener implements Listener {
             final PortalData otherportal = pg.getPM().getPortal(gun.getPortal(portal.getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
             if (otherportal == null) {
                 return;
+            }
+
+            //Durability check and delete portal if out of durability.
+            if (portal.getDurability() != null) {
+                short durability = portal.getDurability();
+                durability--;
+                if (durability <= 0) {
+                    pg.getPM().deletePortal(portal.getUid());
+                } else {
+                    portal.setDurability(durability);
+                    pg.getPM().savePortal(portal, true);
+                }
             }
 
             //Put the other portal on cooldown to fix infinite looping with portals on the ground.

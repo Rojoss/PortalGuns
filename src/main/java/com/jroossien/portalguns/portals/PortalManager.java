@@ -109,6 +109,11 @@ public class PortalManager {
             return null;
         }
 
+        short durability = (short)(gunType == GunType.GLOBAL ? pg.getCfg().portal__durability__global : pg.getCfg().portal__durability__personal);
+        if (durability > 0) {
+            data.setDurability(durability);
+        }
+
         portals.put(uid, data);
         cfg.portals.put(uid.toString(), data.getData());
 

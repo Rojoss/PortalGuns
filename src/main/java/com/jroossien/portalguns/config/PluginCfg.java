@@ -25,6 +25,10 @@ public class PluginCfg extends EasyConfig {
     public String portalgun__primaryColor = "0,110,255";
     public String portalgun__secondaryColor = "255,140,0";
     public String portalgun__item = "BREWING_STAND_ITEM:0";
+    public int portalgun__durability__global = -1;
+    public int portalgun__durability__personal = 10;
+    public int portalgun__cooldown__global = -1;
+    public int portalgun__cooldown__personal = -1;
 
     public int portal__maxDistance__global = -1;
     public int portal__maxDistance__personal = 64;
@@ -34,6 +38,8 @@ public class PluginCfg extends EasyConfig {
     public boolean portal__persistent__global = true;
     public boolean portal__persistent__personal = false;
     public boolean portal__teleportLeashedEntities = true;
+    public int portal__durability__global = -1;
+    public int portal__durability__personal = -1;
 
     public boolean cleanup__logout__destroy = false;
     public boolean cleanup__logout__disable = true;
