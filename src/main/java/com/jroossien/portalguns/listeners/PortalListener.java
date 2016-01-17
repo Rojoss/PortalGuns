@@ -52,7 +52,12 @@ public class PortalListener implements Listener {
                 return;
             }
             if (!portal.getBlock1().equals(event.getTo().getBlock()) && !portal.getBlock2().equals(event.getTo().getBlock())) {
-                continue;
+                if (portal.getDirection() != BlockFace.DOWN) {
+                    continue;
+                }
+                if (!portal.getBlock1().equals(event.getTo().getBlock().getRelative(BlockFace.UP)) && !portal.getBlock2().equals(event.getTo().getBlock().getRelative(BlockFace.UP))) {
+                    continue;
+                }
             }
             GunData gun = pg.getGM().getGun(portal.getGun());
             if (gun == null) {
