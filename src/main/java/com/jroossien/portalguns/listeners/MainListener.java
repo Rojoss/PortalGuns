@@ -36,8 +36,8 @@ public class MainListener implements Listener {
             }
             pg.getPM().deletePortal(portal.getUid());
         }
-        pg.getPortalCfg().save();
-        pg.getGunCfg().save();
+        pg.getPortalCfg().forceSave();
+        pg.getGunCfg().forceSave();
     }
 
     @EventHandler
@@ -48,11 +48,11 @@ public class MainListener implements Listener {
             PortalData secondary = pg.getPM().getPortal(gun.getSecondaryPortal());
             if (primary != null && !secondary.isEnabled()) {
                 primary.setEnabled(true);
-                pg.getPM().savePortal(primary, true);
+                pg.getPM().savePortal(primary);
             }
             if (secondary != null && !secondary.isEnabled()) {
                 secondary.setEnabled(true);
-                pg.getPM().savePortal(secondary, true);
+                pg.getPM().savePortal(secondary);
             }
         }
     }
@@ -73,11 +73,11 @@ public class MainListener implements Listener {
 
                 if (primary != null && primary.isEnabled() && (!primary.isPersistent() || pg.getCfg().cleanup__logout__disablePersistent)) {
                     primary.setEnabled(false);
-                    pg.getPM().savePortal(primary, true);
+                    pg.getPM().savePortal(primary);
                 }
                 if (secondary != null && secondary.isEnabled() && (!secondary.isPersistent() || pg.getCfg().cleanup__logout__disablePersistent)) {
                     secondary.setEnabled(false);
-                    pg.getPM().savePortal(secondary, true);
+                    pg.getPM().savePortal(secondary);
                 }
             }
 

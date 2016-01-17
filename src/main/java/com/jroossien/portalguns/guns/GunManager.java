@@ -126,7 +126,6 @@ public class GunManager {
     public void deleteGun(UUID uid) {
         if (cfg.guns.containsKey(uid.toString())) {
             cfg.guns.remove(uid.toString());
-            //TODO: Don't save for every deleted gun
             cfg.save();
         }
         if (guns.containsKey(uid)) {
@@ -153,24 +152,21 @@ public class GunManager {
         guns.put(uid, data);
         cfg.guns.put(uid.toString(), data.getData());
 
-        //TODO: Don't save for every gun creation.
         cfg.save();
         return data;
     }
 
-    public void saveGun(UUID uid, boolean saveConfig) {
-        saveGun(getGun(uid), saveConfig);
+    public void saveGun(UUID uid) {
+        saveGun(getGun(uid));
     }
 
-    public void saveGun(GunData data, boolean saveConfig) {
+    public void saveGun(GunData data) {
         if (data == null) {
             return;
         }
         guns.put(data.getUid(), data);
         cfg.guns.put(data.getUid().toString(), data.getData());
-        if (saveConfig) {
-            cfg.save();
-        }
+        cfg.save();
     }
 
     public EItem decreaseDurability(EItem gun) {

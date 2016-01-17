@@ -150,9 +150,8 @@ public class ControlPanel extends Menu {
         }
 
         if (update) {
-            //TODO: Optimize saving.
-            gm.saveGun(gun, true);
-            pm.savePortal(portal, true);
+            gm.saveGun(gun);
+            pm.savePortal(portal);
 
             updateContent(player, gun);
         }

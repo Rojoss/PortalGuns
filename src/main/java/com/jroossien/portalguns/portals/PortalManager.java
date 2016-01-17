@@ -74,16 +74,15 @@ public class PortalManager {
             if (gun != null) {
                 if (gun.getPrimaryPortal() != null && gun.getPrimaryPortal().equals(data.getUid())) {
                     gun.setPrimaryPortal(null);
-                    pg.getGM().saveGun(gun, true);
+                    pg.getGM().saveGun(gun);
                 } else if (gun.getSecondaryPortal() != null && gun.getSecondaryPortal().equals(data.getUid())) {
                     gun.setSecondaryPortal(null);
-                    pg.getGM().saveGun(gun, true);
+                    pg.getGM().saveGun(gun);
                 }
             }
         }
         if (cfg.portals.containsKey(uid.toString())) {
             cfg.portals.remove(uid.toString());
-            //TODO: Don't save for every deleted portal
             cfg.save();
         }
         if (portals.containsKey(uid)) {
@@ -117,24 +116,21 @@ public class PortalManager {
         portals.put(uid, data);
         cfg.portals.put(uid.toString(), data.getData());
 
-        //TODO: Don't save for every portal creation.
         cfg.save();
         return data;
     }
 
-    public void savePortal(UUID uid, boolean saveConfig) {
-        savePortal(getPortal(uid), saveConfig);
+    public void savePortal(UUID uid) {
+        savePortal(getPortal(uid));
     }
 
-    public void savePortal(PortalData data, boolean saveConfig) {
+    public void savePortal(PortalData data) {
         if (data == null) {
             return;
         }
         portals.put(data.getUid(), data);
         cfg.portals.put(data.getUid().toString(), data.getData());
-        if (saveConfig) {
-            cfg.save();
-        }
+        cfg.save();
     }
 
     public Map<UUID, PortalData> getPortals() {

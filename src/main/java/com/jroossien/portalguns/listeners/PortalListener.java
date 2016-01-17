@@ -79,7 +79,7 @@ public class PortalListener implements Listener {
                     pg.getPM().deletePortal(portal.getUid());
                 } else {
                     portal.setDurability(durability);
-                    pg.getPM().savePortal(portal, true);
+                    pg.getPM().savePortal(portal);
                 }
             }
 
@@ -256,8 +256,7 @@ public class PortalListener implements Listener {
         PortalData portal = pg.getPM().getPortal(gun.getPortal(type));
         if (portal != null) {
             portal.move(center, block.getRelative(face), side.getRelative(face), face, dir);
-            //TODO: Don't save for each portal creation.
-            pg.getPM().savePortal(portal, true);
+            pg.getPM().savePortal(portal);
             player.setItemInHand(pg.getGM().decreaseDurability(item));
             return;
         }
@@ -271,7 +270,7 @@ public class PortalListener implements Listener {
         }
         gun.setPortal(type, portal.getUid());
         player.setItemInHand(pg.getGM().decreaseDurability(item));
-        pg.getGM().saveGun(gun, true);
+        pg.getGM().saveGun(gun);
     }
 
     private Block getSideBlock(Block block, BlockFace face) {

@@ -19,6 +19,7 @@ public class PluginCfg extends EasyConfig {
     private Color secondary;
     private MaterialData gunMatData;
 
+    public int saveDelay = 5000;
     public List<String> worlds = getWorldsList();
 
     public int portalgun__maxUseDistance = 32;
