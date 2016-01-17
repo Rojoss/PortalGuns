@@ -3,6 +3,7 @@ package com.jroossien.portalguns.portals;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.config.PortalCfg;
+import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.util.Parse;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -63,6 +64,20 @@ public class PortalManager {
     }
 
     public void deletePortal(UUID uid) {
+        if (uid == null) {
+            return;
+        }
+        PortalData data = getPortal(uid);
+        if (data != null) {
+            GunData gun = pg.getGM().getGun(data.getGun());
+            if (gun.getPrimaryPortal().equals(data.getUid())) {
+                gun.setPrimaryPortal(null);
+                pg.getGM().saveGun(gun, true);
+            } else if (gun.getSecondaryPortal().equals(data.getUid())) {
+                gun.setSecondaryPortal(null);
+                pg.getGM().saveGun(gun, true);
+            }
+        }
         if (cfg.portals.containsKey(uid.toString())) {
             cfg.portals.remove(uid.toString());
             //TODO: Don't save for every deleted portal
