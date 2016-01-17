@@ -90,7 +90,7 @@ public class PortalListener implements Listener {
 
             //Teleport!
             //event.setTo(targetLoc);
-            Util.teleport(event.getPlayer(), targetLoc, new TeleportCallback() {
+            Util.teleport(event.getPlayer(), targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
                 @Override
                 public void teleported(List<Entity> entities) {
                     Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());

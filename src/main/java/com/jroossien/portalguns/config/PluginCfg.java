@@ -33,6 +33,7 @@ public class PluginCfg extends EasyConfig {
     public boolean portal__alwaysVisible = false;
     public boolean portal__persistent__global = true;
     public boolean portal__persistent__personal = false;
+    public boolean portal__teleportLeashedEntities = true;
 
     public boolean cleanup__logout__destroy = false;
     public boolean cleanup__logout__disable = true;

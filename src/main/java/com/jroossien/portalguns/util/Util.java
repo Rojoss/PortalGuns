@@ -116,7 +116,8 @@ public class Util {
      * @param entity The entity to teleport. (Usually the player)
      * @param location The location to teleport the entity too.
      */
-    public static void teleport(Entity entity, Location location, final TeleportCallback callback) {
+    public static void teleport(Entity entity, Location location, boolean telportLeashed, final TeleportCallback callback) {
+        Location originalLoc = entity.getLocation();
         final List<Entity> entities = new ArrayList<Entity>();
         while (entity.isInsideVehicle() && entity.getVehicle() != null) {
             entity = entity.getVehicle();
@@ -139,11 +140,13 @@ public class Util {
             }
         }
 
-        if (player != null) {
-            for (Entity nearby : nearbyEntities) {
-                if (nearby instanceof LivingEntity && ((LivingEntity)nearby).isLeashed() && ((LivingEntity)nearby).getLeashHolder().equals(player)) {
-                    nearby.teleport(location);
-                    ((LivingEntity) nearby).setLeashHolder(player);
+        if (telportLeashed) {
+            if (player != null) {
+                for (Entity nearby : nearbyEntities) {
+                    if (nearby instanceof LivingEntity && ((LivingEntity)nearby).isLeashed() && ((LivingEntity)nearby).getLeashHolder().equals(player)) {
+                        nearby.teleport(location);
+                        ((LivingEntity) nearby).setLeashHolder(player);
+                    }
                 }
             }
         }
@@ -158,6 +161,6 @@ public class Util {
                 }
                 callback.teleported(entities);
             }
-        }.runTaskLater(PortalGuns.inst(), 5);
+        }.runTaskLater(PortalGuns.inst(), location.getWorld().equals(originalLoc.getWorld()) ? 1 : 10);
     }
 }
