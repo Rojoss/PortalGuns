@@ -45,12 +45,12 @@ public class PluginCfg extends EasyConfig {
         super.load();
     }
 
-    public Color getPrimaryColor() {
-        return primary;
-    }
-
-    public Color getSecondaryColor() {
-        return secondary;
+    public Color getColor(PortalType type) {
+        if (type == PortalType.PRIMARY) {
+            return primary;
+        } else {
+            return secondary;
+        }
     }
 
     public MaterialData getGunMatData() {
