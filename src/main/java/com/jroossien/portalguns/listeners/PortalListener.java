@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
@@ -224,6 +225,14 @@ public class PortalListener implements Listener {
         Block side = getSideBlock(block, face);
         if (side == null ) {
             Bukkit.broadcastMessage("No side block to attach portal to");
+            //TODO: Fail...
+            return;
+        }
+
+        //Make sure the player can build the portal.
+        BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(block, block.getState(), block.getRelative(face.getOppositeFace()), item, player, true);
+        pg.getServer().getPluginManager().callEvent(blockPlaceEvent);
+        if (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()) {
             //TODO: Fail...
             return;
         }
