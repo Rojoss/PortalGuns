@@ -15,7 +15,6 @@ public class GunData {
     private Short index;
     private GunType type;
     private UUID owner;
-    private Short durability;
     private UUID primaryPortal;
     private UUID secondaryPortal;
     private Color primaryColor;
@@ -34,9 +33,6 @@ public class GunData {
         }
         if (data.containsKey("owner")) {
             owner = Parse.UUID(data.get("owner"));
-        }
-        if (data.containsKey("durability")) {
-            durability = Parse.Short(data.get("durability"));
         }
         if (data.containsKey("primaryPortal")) {
             primaryPortal = Parse.UUID(data.get("primaryPortal"));
@@ -104,18 +100,6 @@ public class GunData {
 
     public void setOwner(UUID owner) {
         this.owner = owner;
-    }
-
-    public Short getDurability() {
-        return durability;
-    }
-
-    public void setDurability(short durability) {
-        this.durability = durability;
-    }
-
-    public void decreaseDurability() {
-        durability--;
     }
 
     public UUID getPortal(PortalType type) {
@@ -266,9 +250,6 @@ public class GunData {
         }
         if (owner != null) {
             data.put("owner", owner.toString());
-        }
-        if (durability != null) {
-            data.put("durability", durability.toString());
         }
         if (primaryPortal != null) {
             data.put("primaryPortal", primaryPortal.toString());
