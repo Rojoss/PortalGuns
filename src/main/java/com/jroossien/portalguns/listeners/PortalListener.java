@@ -45,7 +45,7 @@ public class PortalListener implements Listener {
             return;
         }
         for (PortalData portal : pg.getPM().getPortals().values()) {
-            if (!portal.isValid()) {
+            if (!portal.isValid() || !portal.isEnabled()) {
                 continue;
             }
             if (portal.onCooldown()) {
