@@ -23,6 +23,8 @@ public class PluginCfg extends EasyConfig {
 
     public int portal__fixDelay = 2000;
     public boolean portal__alwaysVisible = false;
+    public boolean portal__persistent__global = true;
+    public boolean portal__persistent__personal = false;
 
     public boolean cleanup__logout__destroy = false;
     public boolean cleanup__logout__disable = true;

@@ -4,6 +4,7 @@ import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.config.PortalCfg;
 import com.jroossien.portalguns.guns.GunData;
+import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.util.Parse;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -96,8 +97,14 @@ public class PortalManager {
             uid = UUID.randomUUID();
         }
 
-        //TODO: Don't set portals to be not persistent by default.
-        PortalData data = new PortalData(uid, gunUid, center, block1, block2, direction, secondaryDirection, type, false);
+        GunData gun = pg.getGM().getGun(gunUid);
+        GunType gunType = GunType.PERSONAL;
+        if (gun != null) {
+            gunType = gun.getType();
+        }
+
+        PortalData data = new PortalData(uid, gunUid, center, block1, block2, direction, secondaryDirection, type,
+                gunType == GunType.GLOBAL ? pg.getCfg().portal__persistent__global : pg.getCfg().portal__persistent__personal);
         if (!data.isValid()) {
             return null;
         }
