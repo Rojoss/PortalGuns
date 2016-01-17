@@ -277,10 +277,10 @@ public class GunData {
             data.put("secondaryPortal", secondaryPortal.toString());
         }
         if (primaryColor != null) {
-            data.put("primaryColor", primaryColor.toString());
+            data.put("primaryColor", Parse.Color(primaryColor));
         }
         if (secondaryColor != null) {
-            data.put("secondaryColor", secondaryColor.toString());
+            data.put("secondaryColor", Parse.Color(secondaryColor));
         }
         if (primaryCooldown != null) {
             data.put("primaryCooldown", primaryCooldown.toString());
