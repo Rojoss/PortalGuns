@@ -17,8 +17,8 @@ public class PluginCfg extends EasyConfig {
     private MaterialData gunMatData;
 
     public int portalgun__maxUseDistance = 32;
-    public String portalgun__primaryColor = "0,80,255";
-    public String portalgun__secondaryColor = "255,200,0";
+    public String portalgun__primaryColor = "0,110,255";
+    public String portalgun__secondaryColor = "255,140,0";
     public String portalgun__item = "BREWING_STAND_ITEM:0";
 
     public int portal__fixDelay = 2000;
