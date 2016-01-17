@@ -32,6 +32,15 @@ public enum Msg {
     CRAFT_COPY(Cat.GUN, "&7Craft a copy of your previous gun!"),
     CRAFT_GUN_INFO_SEPARATOR(Cat.GUN, "&7------------------"),
 
+    MENU_TITLE(Cat.CONTROL_PANEL, "&9&lControl Panel"),
+    RED(Cat.CONTROL_PANEL, "&cRed &8[&6{value}&8]"),
+    GREEN(Cat.CONTROL_PANEL, "&aGreen &8[&6{value}&8]"),
+    BLUE(Cat.CONTROL_PANEL, "&9Blue &8[&6{value}&8]"),
+    COLOR_DESC_INCREASE(Cat.CONTROL_PANEL, "increase"),
+    COLOR_DESC_DECREASE(Cat.CONTROL_PANEL, "decrease"),
+    COLOR_DESC(Cat.CONTROL_PANEL, "&aLeft click &7to {type} the color by &a1&7.\n&2Shift+Left click &7to {type} the color by &25&7.\n&eRight click &7to {type} the color by &e20&7.\n&6Shift+Right click &7to {type} the color by &650&7."),
+
+
 
     ;
 
@@ -100,6 +109,7 @@ public enum Msg {
         GENERAL,
         ITEM_PARSER,
         GUN,
+        CONTROL_PANEL,
         ;
     }
 }

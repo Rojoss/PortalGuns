@@ -10,6 +10,8 @@ import com.jroossien.portalguns.guns.GunManager;
 import com.jroossien.portalguns.listeners.CraftListener;
 import com.jroossien.portalguns.listeners.MainListener;
 import com.jroossien.portalguns.listeners.PortalListener;
+import com.jroossien.portalguns.menu.ControlPanel;
+import com.jroossien.portalguns.menu.Menu;
 import com.jroossien.portalguns.portals.PortalManager;
 import com.jroossien.portalguns.util.item.ItemParser;
 import net.milkbowl.vault.Vault;
@@ -41,6 +43,8 @@ public class PortalGuns extends JavaPlugin {
 
     private PortalManager pm;
     private GunManager gm;
+
+    private ControlPanel controlPanel;
 
     private CraftListener craftListener;
 
@@ -80,6 +84,8 @@ public class PortalGuns extends JavaPlugin {
         pm = new PortalManager(this);
         gm = new GunManager(this);
 
+        controlPanel = new ControlPanel(this);
+
         cmds = new Commands(this);
 
         registerListeners();
@@ -94,6 +100,7 @@ public class PortalGuns extends JavaPlugin {
     }
 
     private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new Menu.Events(), this);
         getServer().getPluginManager().registerEvents(new MainListener(this), this);
         craftListener = new CraftListener(this);
         getServer().getPluginManager().registerEvents(craftListener, this);
@@ -181,6 +188,10 @@ public class PortalGuns extends JavaPlugin {
 
     public GunManager getGM() {
         return gm;
+    }
+
+    public ControlPanel getControlPanel() {
+        return controlPanel;
     }
 
 }
