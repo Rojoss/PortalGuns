@@ -64,6 +64,10 @@ public class PortalListener implements Listener {
                 return;
             }
 
+            if (gun.getOwner() != null && !gun.getOwner().equals(event.getPlayer().getUniqueId()) && !gun.getShares().contains(event.getPlayer().getUniqueId())) {
+                return;
+            }
+
             //Get the other portal.
             PortalData otherportal = pg.getPM().getPortal(gun.getPortal(portal.getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
             if (otherportal == null) {
