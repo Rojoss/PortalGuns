@@ -33,6 +33,7 @@ public class PluginCfg extends EasyConfig {
 
     public int portal__maxDistance__global = -1;
     public int portal__maxDistance__personal = 64;
+    public boolean portal__checkCanBuild = true;
     public boolean portal__allowCrossWorlds = true;
     public int portal__fixDelay = 500;
     public boolean portal__alwaysVisible = false;

@@ -6,6 +6,7 @@ import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.util.ItemUtil;
 import com.jroossien.portalguns.util.Str;
+import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
 import com.jroossien.portalguns.util.item.ItemParser;
 import org.bukkit.Material;
@@ -91,6 +92,11 @@ public class CraftListener implements Listener {
                 owner = event.getView().getPlayer().getUniqueId();
             }
 
+            if (!Util.hasPermission(event.getView().getPlayer(), "portalguns.craft." + Str.stripColor(result.getLore(0)).toLowerCase())) {
+                inv.setItem(0, ItemUtil.AIR);
+                return;
+            }
+
             //Update the result based on the index and owner.
             final GunData gun = pg.getGM().getGun(owner, index);
             if (gun == null) {
@@ -119,6 +125,14 @@ public class CraftListener implements Listener {
                 owner = event.getView().getPlayer().getUniqueId();
                 type = GunType.PERSONAL;
             }
+
+            if (!Util.hasPermission(event.getView().getPlayer(), "portalguns.craft." + type.toString().toLowerCase())) {
+                inv.setResult(ItemUtil.AIR);
+                event.setResult(Event.Result.DENY);
+                event.setCancelled(true);
+                return;
+            }
+
             //Get the gun and/or create a new one if needed.
             GunData gun = pg.getGM().getGun(owner, index);
             if (gun == null) {

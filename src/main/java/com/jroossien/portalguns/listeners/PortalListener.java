@@ -61,6 +61,10 @@ public class PortalListener implements Listener {
                 return;
             }
 
+            if (!Util.hasPermission(event.getPlayer(), "portalguns.portal.use." + gun.getType().toString().toLowerCase())) {
+                return;
+            }
+
             if (gun.getOwner() != null && !gun.getOwner().equals(event.getPlayer().getUniqueId()) && !gun.getShares().contains(event.getPlayer().getUniqueId())) {
                 return;
             }
@@ -72,7 +76,7 @@ public class PortalListener implements Listener {
             }
 
             //Durability check and delete portal if out of durability.
-            if (portal.getDurability() != null) {
+            if (portal.getDurability() != null && !Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
                 short durability = portal.getDurability();
                 durability--;
                 if (durability <= 0) {
@@ -116,6 +120,9 @@ public class PortalListener implements Listener {
         if (!pg.getCfg().portal__preventBreakingAttachedBlocks) {
             return;
         }
+        if (Util.hasPermission(event.getPlayer(), "portalguns.bypass.breakattachedblock")) {
+            return;
+        }
         Location loc = event.getBlock().getLocation();
         for (PortalData portal : pg.getPM().getPortals().values()) {
             if (!portal.isValid()) {
@@ -147,9 +154,11 @@ public class PortalListener implements Listener {
         event.setUseItemInHand(Event.Result.DENY);
         event.setCancelled(true);
 
-        if (!pg.getCfg().worlds.contains(player.getWorld().getName())) {
-            //TODO: Fail..
-            return;
+        if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.worldcheck")) {
+            if (!pg.getCfg().worlds.contains(player.getWorld().getName())) {
+                //TODO: Fail..
+                return;
+            }
         }
 
         //Get the gun.
@@ -175,7 +184,17 @@ public class PortalListener implements Listener {
 
         //Control panel.
         if (player.isSneaking()) {
+            if (!Util.hasPermission(player, "portalguns.controlpanel." + gun.getType().toString().toLowerCase())) {
+                //TODO: Fail...
+                return;
+            }
+
             pg.getControlPanel().show(player);
+            return;
+        }
+
+        if (!Util.hasPermission(player, "portalguns.portal.create." + gun.getType().toString().toLowerCase())) {
+            //TODO: Fail...
             return;
         }
 
@@ -210,13 +229,15 @@ public class PortalListener implements Listener {
                     return;
                 }
             } else {
-                int maxDistance = pg.getCfg().portal__maxDistance__personal;
-                if (gun.getType() == GunType.GLOBAL) {
-                    maxDistance = pg.getCfg().portal__maxDistance__global;
-                }
-                if (maxDistance > 0 && otherBlock.getLocation().distance(block.getLocation()) > maxDistance) {
-                    //TODO: Fail..
-                    return;
+                if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.distancecheck")) {
+                    int maxDistance = pg.getCfg().portal__maxDistance__personal;
+                    if (gun.getType() == GunType.GLOBAL) {
+                        maxDistance = pg.getCfg().portal__maxDistance__global;
+                    }
+                    if (maxDistance > 0 && otherBlock.getLocation().distance(block.getLocation()) > maxDistance) {
+                        //TODO: Fail..
+                        return;
+                    }
                 }
             }
         }
@@ -230,11 +251,13 @@ public class PortalListener implements Listener {
         }
 
         //Make sure the player can build the portal.
-        BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(block, block.getState(), block.getRelative(face.getOppositeFace()), item, player, true);
-        pg.getServer().getPluginManager().callEvent(blockPlaceEvent);
-        if (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()) {
-            //TODO: Fail...
-            return;
+        if (pg.getCfg().portal__checkCanBuild && !Util.hasPermission(event.getPlayer(), "portalguns.bypass.buildcheck")) {
+            BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(block, block.getState(), block.getRelative(face.getOppositeFace()), item, player, true);
+            pg.getServer().getPluginManager().callEvent(blockPlaceEvent);
+            if (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()) {
+                //TODO: Fail...
+                return;
+            }
         }
 
         //Get the center location in front of the two blocks.
@@ -257,7 +280,9 @@ public class PortalListener implements Listener {
         if (portal != null) {
             portal.move(center, block.getRelative(face), side.getRelative(face), face, dir);
             pg.getPM().savePortal(portal);
-            player.setItemInHand(pg.getGM().decreaseDurability(item));
+            if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
+                player.setItemInHand(pg.getGM().decreaseDurability(item));
+            }
             return;
         }
 
@@ -269,7 +294,9 @@ public class PortalListener implements Listener {
             return;
         }
         gun.setPortal(type, portal.getUid());
-        player.setItemInHand(pg.getGM().decreaseDurability(item));
+        if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
+            player.setItemInHand(pg.getGM().decreaseDurability(item));
+        }
         pg.getGM().saveGun(gun);
     }
 

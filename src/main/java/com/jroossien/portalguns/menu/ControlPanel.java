@@ -12,6 +12,7 @@ import com.jroossien.portalguns.portals.PortalManager;
 import com.jroossien.portalguns.util.ItemUtil;
 import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Str;
+import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -98,6 +99,9 @@ public class ControlPanel extends Menu {
 
         //Delete portal
         if (slot == 0 || slot == 8) {
+            if (!Util.hasPermission(player, "portalguns.controlpanel.delete")) {
+                return;
+            }
             pm.deletePortal(gun.getPortal(type));
             updateContent(player, gun);
             return;
@@ -105,12 +109,18 @@ public class ControlPanel extends Menu {
 
         //Toggle persistent mode
         if (slot == 1 || slot == 7) {
+            if (!Util.hasPermission(player, "portalguns.controlpanel.persistence")) {
+                return;
+            }
             portal.setPersistent(!portal.isPersistent());
             update = true;
         }
 
         //Add/Remove shared players.
         if (slot == 2 || slot == 6) {
+            if (!Util.hasPermission(player, "portalguns.controlpanel.share")) {
+                return;
+            }
             if (gun.getType() == GunType.GLOBAL) {
                 //Fail...
                 return;
@@ -119,34 +129,40 @@ public class ControlPanel extends Menu {
             update = true;
         }
 
-        Color color = gun.getColor(type);
-        if (color == null) {
-            color = pg.getCfg().getColor(type);
-        }
-        int change = 1;
-        if (event.getClick() == ClickType.SHIFT_LEFT) {
-            change = 5;
-        } else if (event.getClick() == ClickType.RIGHT) {
-            change = 20;
-        } else if (event.getClick() == ClickType.SHIFT_RIGHT) {
-            change = 50;
-        }
-        if (slot == 37 || slot == 38 || slot == 39 || slot == 41 || slot == 42 || slot == 43) {
-            change *= -1;
-        }
+        if (slot == 28 || slot == 32 || slot == 37 || slot == 41 || slot == 29 || slot == 33 || slot == 38 || slot == 42 || slot == 30 || slot == 34 || slot == 39 || slot == 43) {
+            if (Util.hasPermission(player, "portalguns.controlpanel.color")) {
+                return;
+            }
 
-        if (slot == 28 || slot == 32 || slot == 37 || slot == 41) {
-            color = color.setRed(Math.min(Math.max(color.getRed() + change, 0), 255));
-            gun.setColor(type, color);
-            update = true;
-        } else if (slot == 29 || slot == 33 || slot == 38 || slot == 42) {
-            color = color.setGreen(Math.min(Math.max(color.getGreen() + change, 0), 255));
-            gun.setColor(type, color);
-            update = true;
-        } else if (slot == 30 || slot == 34 || slot == 39 || slot == 43) {
-            color = color.setBlue(Math.min(Math.max(color.getBlue() + change, 0), 255));
-            gun.setColor(type, color);
-            update = true;
+            Color color = gun.getColor(type);
+            if (color == null) {
+                color = pg.getCfg().getColor(type);
+            }
+            int change = 1;
+            if (event.getClick() == ClickType.SHIFT_LEFT) {
+                change = 5;
+            } else if (event.getClick() == ClickType.RIGHT) {
+                change = 20;
+            } else if (event.getClick() == ClickType.SHIFT_RIGHT) {
+                change = 50;
+            }
+            if (slot == 37 || slot == 38 || slot == 39 || slot == 41 || slot == 42 || slot == 43) {
+                change *= -1;
+            }
+
+            if (slot == 28 || slot == 32 || slot == 37 || slot == 41) {
+                color = color.setRed(Math.min(Math.max(color.getRed() + change, 0), 255));
+                gun.setColor(type, color);
+                update = true;
+            } else if (slot == 29 || slot == 33 || slot == 38 || slot == 42) {
+                color = color.setGreen(Math.min(Math.max(color.getGreen() + change, 0), 255));
+                gun.setColor(type, color);
+                update = true;
+            } else if (slot == 30 || slot == 34 || slot == 39 || slot == 43) {
+                color = color.setBlue(Math.min(Math.max(color.getBlue() + change, 0), 255));
+                gun.setColor(type, color);
+                update = true;
+            }
         }
 
         if (update) {
