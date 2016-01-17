@@ -29,7 +29,7 @@ public class PortalRunnable extends BukkitRunnable {
     @Override
     public void run() {
         for (PortalData portal : pm.getPortals().values()) {
-            if (!portal.isValid()) {
+            if (!portal.isValid() || !portal.isEnabled()) {
                 continue;
             }
             Location loc = portal.getCenter();
@@ -42,11 +42,7 @@ public class PortalRunnable extends BukkitRunnable {
             }
             Color color = gun.getColor(portal.getType());
             if (color == null) {
-                if (portal.getType() == PortalType.PRIMARY) {
-                    color = pg.getCfg().getPrimaryColor();
-                } else {
-                    color = pg.getCfg().getSecondaryColor();
-                }
+                color = pg.getCfg().getColor(portal.getType());
             }
 
             for (int i = 0; i <= 1; i++) {
