@@ -189,7 +189,12 @@ public class GunManager {
         }
         durability--;
         if (durability <= 0) {
-            return EItem.AIR;
+            if (gun.getAmount() == 1) {
+                return EItem.AIR;
+            } else {
+                gun.setAmount(gun.getAmount()-1);
+                return gun;
+            }
         }
         gun.setLore(2, Msg.GUN_DURABILITY_PREFIX.getMsg() + durability + Msg.GUN_DURABILITY_SEPERATOR.getMsg() + Msg.GUN_DURABILITY_SUFFIX.getMsg() + split[1]);
         return gun;
