@@ -1,5 +1,6 @@
 package com.jroossien.portalguns.config;
 
+import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.item.ItemParser;
 import org.bukkit.Color;
@@ -21,6 +22,14 @@ public class PluginCfg extends EasyConfig {
     public String portalgun__item = "BREWING_STAND_ITEM:0";
 
     public int portal__fixDelay = 2000;
+    public boolean portal__alwaysVisible = false;
+
+    public boolean cleanup__logout__destroy = false;
+    public boolean cleanup__logout__disable = true;
+    public boolean cleanup__logout__disablePersistent = true;
+    public boolean cleanup__death__destroy = true;
+    public boolean cleanup__shutdown__destroy = true;
+    public int cleanup__destroyAfterSeconds = 1800;
 
     public List<String> blockedPortalMaterials = Arrays.asList("LAVA", "STATIONARY_LAVA", "WATER", "STATIONARY_WATER", "STANDING_BANNER", "BREWING_STAND", "BED_BLOCK", "SIGN_POST", "WALL_SIGN", "IRON_FENCE",
             "FENCE", "FENCE_GATE", "BIRCH_FENCE", "BIRCH_FENCE_GATE", "SPRUCE_FENCE", "SPRUCE_FENCE_GATE", "JUNGLE_FENCE", "JUNGLE_FENCE_GATE", "ACACIA_FENCE", "ACACIA_FENCE_GATE",
