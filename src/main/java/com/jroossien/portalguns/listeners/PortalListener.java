@@ -6,16 +6,14 @@ import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.portals.PortalData;
-import com.jroossien.portalguns.util.ItemUtil;
-import com.jroossien.portalguns.util.Parse;
-import com.jroossien.portalguns.util.Str;
-import com.jroossien.portalguns.util.Util;
+import com.jroossien.portalguns.util.*;
 import com.jroossien.portalguns.util.item.EItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -69,7 +67,7 @@ public class PortalListener implements Listener {
             }
 
             //Get the other portal.
-            PortalData otherportal = pg.getPM().getPortal(gun.getPortal(portal.getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
+            final PortalData otherportal = pg.getPM().getPortal(gun.getPortal(portal.getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
             if (otherportal == null) {
                 return;
             }
@@ -91,10 +89,14 @@ public class PortalListener implements Listener {
             targetLoc.setPitch(event.getPlayer().getLocation().getPitch());
 
             //Teleport!
-            event.setTo(targetLoc);
-            event.getPlayer().teleport(targetLoc);
-            Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
-            event.getPlayer().setVelocity(velocity.multiply(0.2f));
+            //event.setTo(targetLoc);
+            Util.teleport(event.getPlayer(), targetLoc, new TeleportCallback() {
+                @Override
+                public void teleported(List<Entity> entities) {
+                    Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
+                    entities.get(0).setVelocity(velocity.multiply(0.2f));
+                }
+            });
             return;
         }
     }

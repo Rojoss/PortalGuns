@@ -1,9 +1,17 @@
 package com.jroossien.portalguns.util;
 
+import com.jroossien.portalguns.PortalGuns;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Util {
 
@@ -100,5 +108,56 @@ public class Util {
     public static Location offsetLocation(Location location, BlockFace direction, double offset) {
         location.add((double)direction.getModX() * offset, (double)direction.getModY() * offset, (double)direction.getModZ() * offset);
         return location;
+    }
+
+    /**
+     * Teleport an entity to a specific location.
+     * All passengers and vehicles will be teleported too.
+     * @param entity The entity to teleport. (Usually the player)
+     * @param location The location to teleport the entity too.
+     */
+    public static void teleport(Entity entity, Location location, final TeleportCallback callback) {
+        final List<Entity> entities = new ArrayList<Entity>();
+        while (entity.isInsideVehicle() && entity.getVehicle() != null) {
+            entity = entity.getVehicle();
+        }
+        entities.add(entity);
+        while (entity.getPassenger() != null) {
+            entity = entity.getPassenger();
+            entities.add(entity);
+        }
+
+        Player player = null;
+        List<Entity> nearbyEntities = entity.getNearbyEntities(20, 10, 20);
+        for (Entity e : entities) {
+            if (e.getPassenger() != null) {
+                e.eject();
+            }
+            e.teleport(location);
+            if (e instanceof Player) {
+                player = (Player)e;
+            }
+        }
+
+        if (player != null) {
+            for (Entity nearby : nearbyEntities) {
+                if (nearby instanceof LivingEntity && ((LivingEntity)nearby).isLeashed() && ((LivingEntity)nearby).getLeashHolder().equals(player)) {
+                    nearby.teleport(location);
+                    ((LivingEntity) nearby).setLeashHolder(player);
+                }
+            }
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < entities.size(); i++) {
+                    if (i+1 < entities.size()) {
+                        entities.get(i).setPassenger(entities.get(i+1));
+                    }
+                }
+                callback.teleported(entities);
+            }
+        }.runTaskLater(PortalGuns.inst(), 5);
     }
 }
