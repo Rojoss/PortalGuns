@@ -71,10 +71,10 @@ public class PortalManager {
         if (data != null) {
             GunData gun = pg.getGM().getGun(data.getGun());
             if (gun != null) {
-                if (gun.getPrimaryPortal().equals(data.getUid())) {
+                if (gun.getPrimaryPortal() != null && gun.getPrimaryPortal().equals(data.getUid())) {
                     gun.setPrimaryPortal(null);
                     pg.getGM().saveGun(gun, true);
-                } else if (gun.getSecondaryPortal().equals(data.getUid())) {
+                } else if (gun.getSecondaryPortal() != null && gun.getSecondaryPortal().equals(data.getUid())) {
                     gun.setSecondaryPortal(null);
                     pg.getGM().saveGun(gun, true);
                 }
