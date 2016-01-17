@@ -128,6 +128,11 @@ public class PortalListener implements Listener {
             player.setItemInHand(item);
         }
 
+        //Control panel.
+        if (player.isSneaking()) {
+            pg.getControlPanel().show(player);
+            return;
+        }
 
         //Get block and block face either by clicking it or from a distance.
         boolean clickBlock = event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK;
