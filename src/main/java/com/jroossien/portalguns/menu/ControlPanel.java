@@ -169,7 +169,7 @@ public class ControlPanel extends Menu {
         PortalData secondary = pm.getPortal(gun.getPortal(PortalType.SECONDARY));
 
         //Gun
-        setSlot(4, gm.getGunItem(gun.getUid()), player);
+        setSlot(4, new EItem(player.getItemInHand()), player);
 
         //Portals
         if (primary == null) {

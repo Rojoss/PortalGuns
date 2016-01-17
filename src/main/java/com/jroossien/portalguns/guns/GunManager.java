@@ -3,7 +3,10 @@ package com.jroossien.portalguns.guns;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.config.GunCfg;
 import com.jroossien.portalguns.config.messages.Msg;
+import com.jroossien.portalguns.config.messages.Param;
+import com.jroossien.portalguns.util.ItemUtil;
 import com.jroossien.portalguns.util.Parse;
+import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.item.EItem;
 
 import java.util.*;
@@ -170,9 +173,31 @@ public class GunManager {
         }
     }
 
+    public EItem decreaseDurability(EItem gun) {
+        String durabilityString = Str.replaceColor(gun.getLore(2));
+        if (!durabilityString.startsWith(Msg.GUN_DURABILITY_PREFIX.getMsg())) {
+            return gun;
+        }
+        durabilityString = Str.stripColor(durabilityString);
+        String[] split = durabilityString.split(Str.stripColor(Msg.GUN_DURABILITY_SEPERATOR.getMsg()));
+        if (split.length < 2) {
+            return gun;
+        }
+        Integer durability = Parse.Int(split[0]);
+        if (durability == null) {
+            return gun;
+        }
+        durability--;
+        if (durability <= 0) {
+            return EItem.AIR;
+        }
+        gun.setLore(2, Msg.GUN_DURABILITY_PREFIX.getMsg() + durability + Msg.GUN_DURABILITY_SEPERATOR.getMsg() + Msg.GUN_DURABILITY_SUFFIX.getMsg() + split[1]);
+        return gun;
+    }
+
     public EItem getBlankGunItem() {
         return new EItem(pg.getCfg().getGunMatData().getItemType(), 1, (short)pg.getCfg().getGunMatData().getData()).setName(Msg.GUN_NAME.getMsg())
-                .setLore(Msg.GUN_UID_PREFIX.getMsg(), Msg.GUN_OWNER.getMsg(), Msg.GUN_DESCRIPTION.getMsg()).makeGlowing(true);
+                .setLore(Msg.GUN_UID_PREFIX.getMsg(), Msg.GUN_OWNER.getMsg(), Msg.GUN_DESCRIPTION.getMsg()).makeGlowing(true).addAllFlags(true);
     }
 
     public EItem getGunItem(UUID gun) {
@@ -180,8 +205,17 @@ public class GunManager {
         if (data == null) {
             return null;
         }
-        return new EItem(pg.getCfg().getGunMatData().getItemType(), 1, (short)pg.getCfg().getGunMatData().getData()).setName(Msg.GUN_NAME.getMsg())
-                .setLore(Msg.GUN_UID_PREFIX.getMsg() + gun.toString(), Msg.GUN_OWNER.getMsg() +
-                        (data.getOwner() == null ? Msg.GLOBAL_OWNER.getMsg() : pg.getServer().getOfflinePlayer(data.getOwner()).getName()), Msg.GUN_DESCRIPTION.getMsg()).makeGlowing(true);
+
+        short durability = 0;
+        if (data.getType() == GunType.GLOBAL) {
+            durability = (short)pg.getCfg().portalgun__durability__global;
+        } else {
+            durability = (short)pg.getCfg().portalgun__durability__personal;
+        }
+
+        return new EItem(pg.getCfg().getGunMatData().getItemType(), 1, (short)pg.getCfg().getGunMatData().getData()).setName(Msg.GUN_NAME.getMsg()).setLore(
+                Msg.GUN_UID_PREFIX.getMsg() + gun.toString(), Msg.GUN_OWNER.getMsg() + (data.getOwner() == null ? Msg.GLOBAL_OWNER.getMsg() : pg.getServer().getOfflinePlayer(data.getOwner()).getName()),
+                (durability > 0 ? Msg.GUN_DURABILITY_PREFIX.getMsg() + durability + Msg.GUN_DURABILITY_SEPERATOR.getMsg() + Msg.GUN_DURABILITY_SUFFIX.getMsg() + durability + "\n" + Msg.GUN_DESCRIPTION.getMsg() :
+                        Msg.GUN_DESCRIPTION.getMsg())).makeGlowing(true).addAllFlags(true);
     }
 }

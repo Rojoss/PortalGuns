@@ -230,6 +230,7 @@ public class PortalListener implements Listener {
             portal.move(center, block.getRelative(face), side.getRelative(face), face, dir);
             //TODO: Don't save for each portal creation.
             pg.getPM().savePortal(portal, true);
+            player.setItemInHand(pg.getGM().decreaseDurability(item));
             return;
         }
 
@@ -241,7 +242,7 @@ public class PortalListener implements Listener {
             return;
         }
         gun.setPortal(type, portal.getUid());
-        //TODO: Don't save for each portal creation.
+        player.setItemInHand(pg.getGM().decreaseDurability(item));
         pg.getGM().saveGun(gun, true);
     }
 
