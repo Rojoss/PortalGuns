@@ -98,7 +98,7 @@ public class ControlPanel extends Menu {
 
         //Delete portal
         if (slot == 0 || slot == 8) {
-            gun.setPortal(type, null);
+            pm.deletePortal(gun.getPortal(type));
             update = true;
         }
 
@@ -194,15 +194,19 @@ public class ControlPanel extends Menu {
         setSlot(8, new EItem(Material.BARRIER), player);
 
         //Persistent state
-        if (primary.isPersistent()) {
-            setSlot(1, new EItem(Material.BEDROCK), player);
-        } else {
-            setSlot(1, new EItem(Material.GLASS), player);
+        if (primary != null) {
+            if (primary.isPersistent()) {
+                setSlot(1, new EItem(Material.BEDROCK), player);
+            } else {
+                setSlot(1, new EItem(Material.GLASS), player);
+            }
         }
-        if (secondary.isPersistent()) {
-            setSlot(7, new EItem(Material.BEDROCK), player);
-        } else {
-            setSlot(7, new EItem(Material.GLASS), player);
+        if (secondary != null) {
+            if (secondary.isPersistent()) {
+                setSlot(7, new EItem(Material.BEDROCK), player);
+            } else {
+                setSlot(7, new EItem(Material.GLASS), player);
+            }
         }
 
         //Manage shares
