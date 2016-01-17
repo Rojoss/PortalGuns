@@ -3,10 +3,13 @@ package com.jroossien.portalguns.config;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.item.ItemParser;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.material.MaterialData;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,12 +19,17 @@ public class PluginCfg extends EasyConfig {
     private Color secondary;
     private MaterialData gunMatData;
 
+    public List<String> worlds = getWorldsList();
+
     public int portalgun__maxUseDistance = 32;
     public String portalgun__primaryColor = "0,110,255";
     public String portalgun__secondaryColor = "255,140,0";
     public String portalgun__item = "BREWING_STAND_ITEM:0";
 
-    public int portal__fixDelay = 2000;
+    public int portal__maxDistance__global = -1;
+    public int portal__maxDistance__personal = 64;
+    public boolean portal__allowCrossWorlds = true;
+    public int portal__fixDelay = 500;
     public boolean portal__alwaysVisible = false;
     public boolean portal__persistent__global = true;
     public boolean portal__persistent__personal = false;
@@ -66,5 +74,13 @@ public class PluginCfg extends EasyConfig {
 
     public MaterialData getGunMatData() {
         return gunMatData;
+    }
+
+    private List<String> getWorldsList() {
+        List<String> worlds = new ArrayList<String>();
+        for (World world : Bukkit.getWorlds()) {
+            worlds.add(world.getName());
+        }
+        return worlds;
     }
 }

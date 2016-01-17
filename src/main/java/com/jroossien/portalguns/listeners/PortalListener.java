@@ -4,6 +4,7 @@ import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.guns.GunData;
+import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.ItemUtil;
 import com.jroossien.portalguns.util.Parse;
@@ -106,6 +107,10 @@ public class PortalListener implements Listener {
         event.setUseItemInHand(Event.Result.DENY);
         event.setCancelled(true);
 
+        if (!pg.getCfg().worlds.contains(player.getWorld().getName())) {
+            //TODO: Fail..
+            return;
+        }
 
         //Get the gun.
         UUID gunUid = Parse.UUID(Str.stripColor(item.getLore(0)));
@@ -149,6 +154,32 @@ public class PortalListener implements Listener {
             return;
         }
 
+        //Get portal type
+        PortalType type = PortalType.PRIMARY;
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
+            type = PortalType.SECONDARY;
+        }
+
+        //Check distance between other portal (And check cross world portals)
+        PortalData otherPortal = pg.getPM().getPortal(gun.getPortal(type.opposite()));
+        if (otherPortal != null && otherPortal.isValid()) {
+            Block otherBlock = otherPortal.getBlock1();
+            if (!otherBlock.getWorld().equals(block.getWorld())) {
+                if (!pg.getCfg().portal__allowCrossWorlds) {
+                    //TODO: Fail..
+                    return;
+                }
+            } else {
+                int maxDistance = pg.getCfg().portal__maxDistance__personal;
+                if (gun.getType() == GunType.GLOBAL) {
+                    maxDistance = pg.getCfg().portal__maxDistance__global;
+                }
+                if (maxDistance > 0 && otherBlock.getLocation().distance(block.getLocation()) > maxDistance) {
+                    //TODO: Fail..
+                    return;
+                }
+            }
+        }
 
         //Try to get a nearby side block as a portal needs two blocks.
         Block side = getSideBlock(block, face);
@@ -172,13 +203,6 @@ public class PortalListener implements Listener {
                 dir = BlockFace.NORTH;
             }
         }
-
-        //Get portal type
-        PortalType type = PortalType.PRIMARY;
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
-            type = PortalType.SECONDARY;
-        }
-
 
         //Move portal if gun already has a portal for the type.
         PortalData portal = pg.getPM().getPortal(gun.getPortal(type));
