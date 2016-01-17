@@ -296,6 +296,18 @@ public class Parse {
     }
 
     /**
+     * Get a string (r,g,b) from a color.
+     * @param color The color to parse
+     * @return String with r,g,b color format.
+     */
+    public static String Color(Color color) {
+        if (color == null) {
+            return "";
+        }
+        return color.getRed() + "," + color.getGreen() + "," + color.getBlue();
+    }
+
+    /**
      * Get a Color from a string.
      * The string can be either rrr,ggg,bbb or #hexhex or without the hashtag.
      * @param string The string to parse.
