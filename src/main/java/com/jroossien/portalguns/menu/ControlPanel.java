@@ -99,7 +99,8 @@ public class ControlPanel extends Menu {
         //Delete portal
         if (slot == 0 || slot == 8) {
             pm.deletePortal(gun.getPortal(type));
-            update = true;
+            updateContent(player, gun);
+            return;
         }
 
         //Toggle persistent mode
