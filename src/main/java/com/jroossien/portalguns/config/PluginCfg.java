@@ -40,6 +40,7 @@ public class PluginCfg extends EasyConfig {
     public boolean portal__teleportLeashedEntities = true;
     public int portal__durability__global = -1;
     public int portal__durability__personal = -1;
+    public boolean portal__preventBreakingAttachedBlocks = true;
 
     public boolean cleanup__logout__destroy = false;
     public boolean cleanup__logout__disable = true;

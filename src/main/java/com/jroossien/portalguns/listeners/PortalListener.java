@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
@@ -98,7 +99,6 @@ public class PortalListener implements Listener {
             targetLoc.setPitch(event.getPlayer().getLocation().getPitch());
 
             //Teleport!
-            //event.setTo(targetLoc);
             Util.teleport(event.getPlayer(), targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
                 @Override
                 public void teleported(List<Entity> entities) {
@@ -107,6 +107,25 @@ public class PortalListener implements Listener {
                 }
             });
             return;
+        }
+    }
+
+    @EventHandler
+    private void blockBreak(BlockBreakEvent event) {
+        if (!pg.getCfg().portal__preventBreakingAttachedBlocks) {
+            return;
+        }
+        Location loc = event.getBlock().getLocation();
+        for (PortalData portal : pg.getPM().getPortals().values()) {
+            if (!portal.isValid()) {
+                continue;
+            }
+            for (Block block : portal.getBlocks()) {
+                if (block.getRelative(portal.getDirection().getOppositeFace()).getLocation().equals(loc)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
         }
     }
 
