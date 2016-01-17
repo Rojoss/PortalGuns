@@ -3,7 +3,9 @@ package com.jroossien.portalguns.guns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Str;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -238,6 +240,21 @@ public class GunData {
 
     public List<UUID> getShares() {
         return shares;
+    }
+
+    public List<Player> getPlayers() {
+        List<Player> players = new ArrayList<Player>();
+        for (UUID uuid : shares) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                players.add(player);
+            }
+        }
+        Player ownerPlayer = Bukkit.getPlayer(owner);
+        if (ownerPlayer != null) {
+            players.add(ownerPlayer);
+        }
+        return players;
     }
 
 
