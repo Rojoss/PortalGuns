@@ -138,4 +138,17 @@ public class Str {
         }
         return sections;
     }
+
+    public static String wrapStringExact(String string, int length) {
+        return string.replaceAll("(.{" + length + "})", "$1\n");
+    }
+
+    public static String wrapString(String string, int length) {
+        StringBuilder sb = new StringBuilder(string);
+        int i = 0;
+        while ((i = sb.indexOf(" ", i + length)) != -1) {
+            sb.replace(i, i + 1, "\n");
+        }
+        return sb.toString();
+    }
 }

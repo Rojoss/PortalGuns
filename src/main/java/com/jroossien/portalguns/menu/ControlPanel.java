@@ -14,7 +14,6 @@ import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,9 +22,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ControlPanel extends Menu {
 
@@ -117,20 +114,24 @@ public class ControlPanel extends Menu {
         }
 
         //Add/Remove shared players.
-        if (slot == 2 || slot == 6) {
+        if (slot == 3) {
             if (!Util.hasPermission(player, "portalguns.controlpanel.share")) {
                 return;
             }
             if (gun.getType() == GunType.GLOBAL) {
-                //Fail...
                 return;
             }
+            String click = "left";
+            if (event.isRightClick()) {
+                click = "right";
+            }
+
             //TODO: Implement this.
             update = true;
         }
 
         if (slot == 28 || slot == 32 || slot == 37 || slot == 41 || slot == 29 || slot == 33 || slot == 38 || slot == 42 || slot == 30 || slot == 34 || slot == 39 || slot == 43) {
-            if (Util.hasPermission(player, "portalguns.controlpanel.color")) {
+            if (!Util.hasPermission(player, "portalguns.controlpanel.color")) {
                 return;
             }
 
@@ -188,47 +189,63 @@ public class ControlPanel extends Menu {
 
         //Portals
         if (primary == null) {
-            setSlot(20, new EItem(Material.BANNER, 1, (short)4), player);
+            setSlot(20, new EItem(Material.BANNER, 1, (short)4).setName(Msg.PRIMARY_NAME.getMsg()).setLore(Msg.PORTAL_DESC_INACTIVE.getMsg(Param.P("{type}", Msg.PRIMARY.getMsg()))), player);
         } else {
-            setSlot(20, new EItem(Material.BANNER, 1, (short)4).makeGlowing(true), player);
+            Color color = gun.getColor(PortalType.PRIMARY);
+            if (color == null) {
+                pg.getCfg().getColor(PortalType.PRIMARY);
+            }
+            String clr = Msg.COLOR_FORMAT.getMsg(Param.P("{red}", color.getRed()), Param.P("{green}", color.getGreen()), Param.P("{blue}", color.getBlue()));
+            setSlot(20, new EItem(Material.BANNER, 1, (short)4).setName(Msg.PRIMARY_NAME.getMsg())
+                    .setLore(Msg.PORTAL_DESC.getMsg(Param.P("{type}", Msg.PRIMARY.getMsg()), Param.P("{color}", clr), Param.P("{location}", Parse.Location(primary.getBlock1().getLocation())))), player);
         }
         if (secondary == null) {
-            setSlot(20, new EItem(Material.BANNER, 1, (short)14), player);
+            setSlot(24, new EItem(Material.BANNER, 1, (short)14).setName(Msg.SECONDARY_NAME.getMsg()).setLore(Msg.PORTAL_DESC_INACTIVE.getMsg(Param.P("{type}", Msg.SECONDARY.getMsg()))), player);
         } else {
-            setSlot(24, new EItem(Material.BANNER, 1, (short)14).makeGlowing(true), player);
+            Color color = gun.getColor(PortalType.SECONDARY);
+            if (color == null) {
+                pg.getCfg().getColor(PortalType.SECONDARY);
+            }
+            String clr = Msg.COLOR_FORMAT.getMsg(Param.P("{red}", color.getRed()), Param.P("{green}", color.getGreen()), Param.P("{blue}", color.getBlue()));
+            setSlot(24, new EItem(Material.BANNER, 1, (short)14).setName(Msg.SECONDARY_NAME.getMsg())
+                    .setLore(Msg.PORTAL_DESC.getMsg(Param.P("{type}", Msg.SECONDARY.getMsg()), Param.P("{color}", clr), Param.P("{location}", Parse.Location(secondary.getBlock1().getLocation())))), player);
         }
 
 
         //Glass panes
-        fill(new EItem(Material.STAINED_GLASS_PANE, 1, (short)11), player, 9,10,11,12, 18, 27, 36, 45,46,47,48);
-        fill(new EItem(Material.STAINED_GLASS_PANE, 1, (short)12), player, 13,22,31,40,49);
-        fill(new EItem(Material.STAINED_GLASS_PANE, 1, (short)1), player, 14,15,16,17, 26, 35, 44, 50,51,52,53);
+        fill(new EItem(Material.STAINED_GLASS_PANE, 1, (short)11).setName(Msg.SEPERATOR_LEFT.getMsg()), player, 9,10,11,12, 18, 27, 36, 45,46,47,48);
+        fill(new EItem(Material.STAINED_GLASS_PANE, 1, (short)12).setName(Msg.SEPERATOR_CENTER.getMsg()), player, 13,22,31,40,49);
+        fill(new EItem(Material.STAINED_GLASS_PANE, 1, (short)1).setName(Msg.SEPERATOR_RIGHT.getMsg()), player, 14,15,16,17, 26, 35, 44, 50,51,52,53);
 
 
         //Destroy portal
-        setSlot(0, new EItem(Material.BARRIER), player);
-        setSlot(8, new EItem(Material.BARRIER), player);
+        setSlot(0, new EItem(Material.BARRIER).setName(Msg.DELETE_NAME.getMsg()).setLore(Msg.DELETE_DESC.getMsg(Param.P("{type}", Msg.PRIMARY.getMsg()))), player);
+        setSlot(8, new EItem(Material.BARRIER).setName(Msg.DELETE_NAME.getMsg()).setLore(Msg.DELETE_DESC.getMsg(Param.P("{type}", Msg.SECONDARY.getMsg()))), player);
 
         //Persistent state
         if (primary != null) {
             if (primary.isPersistent()) {
-                setSlot(1, new EItem(Material.BEDROCK), player);
+                setSlot(1, new EItem(Material.BEDROCK).setName(Msg.PERSISTENT_NAME.getMsg()).setLore(Msg.PERSISTENT_DESC.getMsg()), player);
             } else {
-                setSlot(1, new EItem(Material.GLASS), player);
+                setSlot(1, new EItem(Material.GLASS).setName(Msg.NOT_PERSISTENT_NAME.getMsg()).setLore(Msg.NOT_PERSISTENT_DESC.getMsg()), player);
             }
         }
         if (secondary != null) {
             if (secondary.isPersistent()) {
-                setSlot(7, new EItem(Material.BEDROCK), player);
+                setSlot(7, new EItem(Material.BEDROCK).setName(Msg.PERSISTENT_NAME.getMsg()).setLore(Msg.PERSISTENT_DESC.getMsg()), player);
             } else {
-                setSlot(7, new EItem(Material.GLASS), player);
+                setSlot(7, new EItem(Material.GLASS).setName(Msg.NOT_PERSISTENT_NAME.getMsg()).setLore(Msg.NOT_PERSISTENT_DESC.getMsg()), player);
             }
         }
 
         //Manage shares
         if (gun.getType() != GunType.GLOBAL) {
-            setSlot(2, new EItem(Material.NAME_TAG), player);
-            setSlot(6, new EItem(Material.NAME_TAG), player);
+            List<String> shares = new ArrayList<String>();
+            for (UUID uuid : gun.getShares()) {
+                shares.add(pg.getServer().getOfflinePlayer(uuid).getName());
+            }
+            setSlot(3, new EItem(Material.NAME_TAG).setName(Msg.SHARES_NAME.getMsg())
+                    .setLore(Msg.SHARES_DESC.getMsg(Param.P("{shares}", shares.isEmpty() ? Msg.NOBODY.getMsg() : Str.wrapString(Str.implode(shares, ", ", " & "), 50)))), player);
         }
 
 
