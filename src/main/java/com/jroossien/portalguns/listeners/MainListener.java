@@ -6,6 +6,7 @@ import com.jroossien.portalguns.portals.PortalData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -19,6 +20,15 @@ public class MainListener implements Listener {
 
     public MainListener(PortalGuns pg) {
         this.pg = pg;
+    }
+
+    @EventHandler
+    private void textInput(AsyncPlayerChatEvent event) {
+        if (!pg.getControlPanel().hasInput(event.getPlayer())) {
+            return;
+        }
+        pg.getControlPanel().setInputResult(event.getPlayer(), event.getMessage());
+        event.setCancelled(true);
     }
 
     @EventHandler
@@ -80,8 +90,6 @@ public class MainListener implements Listener {
                     pg.getPM().savePortal(secondary);
                 }
             }
-
-
         }
     }
 

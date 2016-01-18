@@ -62,7 +62,12 @@ public enum Msg {
     COLOR_DESC_INCREASE(Cat.CONTROL_PANEL, "increase"),
     COLOR_DESC_DECREASE(Cat.CONTROL_PANEL, "decrease"),
     COLOR_DESC(Cat.CONTROL_PANEL, "&aLeft click &7to {type} the color by &a1&7.\n&2Shift+Left click &7to {type} the color by &25&7.\n&eRight click &7to {type} the color by &e20&7.\n&6Shift+Right click &7to {type} the color by &650&7."),
-
+    INPUT_SHARES_ADD(Cat.CONTROL_PANEL, "&6Type the name of a player you want to add to the shares list in chat. &8(&7Type &cq &7to stop the input mode.&8)"),
+    INPUT_SHARES_REMOVE(Cat.CONTROL_PANEL, "&6Type the name of a player you want to remove from the shares list in chat. &8(&7Type &cq &7to stop the input mode.&8)"),
+    INPUT_DISABLED(Cat.CONTROL_PANEL, "&6Input mode is now disabled."),
+    INPUT_INVALID_PLAYER(Cat.CONTROL_PANEL, "&cInvalid player specified! &7Type &cq &7to cancel the input mode."),
+    INPUT_ALREADY_SHARED(Cat.CONTROL_PANEL, "&cThe portals are already shared with this player! &7Type &cq &7to cancel the input mode."),
+    INPUT_NOT_SHARED(Cat.CONTROL_PANEL, "&cThe portals are not shared with this player! &7Type &cq &7to cancel the input mode."),
 
 
     ;

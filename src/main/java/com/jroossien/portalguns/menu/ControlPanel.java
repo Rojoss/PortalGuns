@@ -16,6 +16,7 @@ import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -31,6 +32,7 @@ public class ControlPanel extends Menu {
     private PortalManager pm;
 
     private Map<UUID, UUID> guns = new HashMap<UUID, UUID>();
+    private Map<UUID, String> input = new HashMap<UUID, String>();
 
     public ControlPanel(PortalGuns pg) {
         super(pg, "control-panel", 6, Msg.MENU_TITLE.getMsg());
@@ -82,6 +84,27 @@ public class ControlPanel extends Menu {
         }
         int slot = event.getRawSlot();
 
+        //Add/Remove shared players.
+        if (slot == 3) {
+            if (!Util.hasPermission(player, "portalguns.controlpanel.share")) {
+                return;
+            }
+            if (gun.getType() == GunType.GLOBAL) {
+                return;
+            }
+            String inputType = "addShare";
+            if (event.isRightClick()) {
+                inputType = "removeShare";
+                Msg.INPUT_SHARES_REMOVE.send(player);
+            } else {
+                Msg.INPUT_SHARES_ADD.send(player);
+            }
+
+            input.put(player.getUniqueId(), gun.getUid().toString() + ":" + inputType);
+            player.closeInventory();
+            return;
+        }
+
         PortalType type = PortalType.PRIMARY;
         if ((slot > 4 && slot <=8) || (slot > 13 && slot <=17) || (slot > 22 && slot <=26) || (slot > 31 && slot <=35) || (slot > 40 && slot <=44) || (slot > 49 && slot <=53)) {
             type = PortalType.SECONDARY;
@@ -110,23 +133,6 @@ public class ControlPanel extends Menu {
                 return;
             }
             portal.setPersistent(!portal.isPersistent());
-            update = true;
-        }
-
-        //Add/Remove shared players.
-        if (slot == 3) {
-            if (!Util.hasPermission(player, "portalguns.controlpanel.share")) {
-                return;
-            }
-            if (gun.getType() == GunType.GLOBAL) {
-                return;
-            }
-            String click = "left";
-            if (event.isRightClick()) {
-                click = "right";
-            }
-
-            //TODO: Implement this.
             update = true;
         }
 
@@ -282,5 +288,62 @@ public class ControlPanel extends Menu {
         for (int slot : slots) {
             setSlot(slot, item, player);
         }
+    }
+
+    public boolean hasInput(Player player) {
+        return input.containsKey(player.getUniqueId());
+    }
+
+    public void setInputResult(Player player, String string) {
+        string = string.trim();
+        UUID uuid = player.getUniqueId();
+        String type = input.get(player.getUniqueId());
+
+        //Disable input when q is typed.
+        if (string.equalsIgnoreCase("q")) {
+            input.remove(player.getUniqueId());
+            Msg.INPUT_DISABLED.send(player);
+            return;
+        }
+
+        String[] split = type.split(":");
+        UUID gunUid = Parse.UUID(split[0]);
+        GunData gun = pg.getGM().getGun(gunUid);
+        if (gun == null || !gun.isValid()) {
+            //This should never happen but just in case. (Don't want users getting stuck in input mode)
+            input.remove(player.getUniqueId());
+            Msg.INPUT_DISABLED.send(player);
+            return;
+        }
+        type = split[1];
+
+        //Add/remove player to shares.
+        if (type.equalsIgnoreCase("addShare") || type.equalsIgnoreCase("removeShare")) {
+            OfflinePlayer oPlayer = pg.getServer().getOfflinePlayer(string);
+            if (oPlayer == null) {
+                Msg.INPUT_INVALID_PLAYER.send(player);
+                return;
+            }
+            if (type.equalsIgnoreCase("addShare")) {
+                if (gun.getShares().contains(oPlayer.getUniqueId())) {
+                    Msg.INPUT_ALREADY_SHARED.send(player);
+                    return;
+                }
+                gun.addShare(oPlayer.getUniqueId());
+            } else {
+                if (!gun.getShares().contains(oPlayer.getUniqueId())) {
+                    Msg.INPUT_NOT_SHARED.send(player);
+                    return;
+                }
+                gun.removeShare(oPlayer.getUniqueId());
+            }
+            input.remove(player.getUniqueId());
+            show(player);
+            return;
+        }
+
+        //This should never happen but just in case. (Don't want users getting stuck in input mode)
+        input.remove(player.getUniqueId());
+        show(player);
     }
 }
