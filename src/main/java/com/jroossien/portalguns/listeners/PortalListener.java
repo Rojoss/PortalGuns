@@ -275,6 +275,16 @@ public class PortalListener implements Listener {
             }
         }
 
+        //Gun cooldown
+        int cooldownTime = gun.getType() == GunType.GLOBAL ? pg.getCfg().portalgun__cooldown__global : pg.getCfg().portalgun__cooldown__personal;
+        if (cooldownTime > 0) {
+            if (gun.onCooldown(type)) {
+                //TODO: Fail...
+                return;
+            }
+            gun.setCooldown(type, (long)cooldownTime);
+        }
+
         //Move portal if gun already has a portal for the type.
         PortalData portal = pg.getPM().getPortal(gun.getPortal(type));
         if (portal != null) {
