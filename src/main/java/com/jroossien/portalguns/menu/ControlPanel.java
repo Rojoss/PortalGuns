@@ -225,7 +225,7 @@ public class ControlPanel extends Menu {
         } else {
             Color color = gun.getColor(PortalType.PRIMARY);
             if (color == null) {
-                pg.getCfg().getColor(PortalType.PRIMARY);
+                color = pg.getCfg().getColor(PortalType.PRIMARY);
             }
             String clr = Msg.COLOR_FORMAT.getMsg(Param.P("{red}", color.getRed()), Param.P("{green}", color.getGreen()), Param.P("{blue}", color.getBlue()));
             setSlot(20, new EItem(Material.BANNER, 1, (short)4).setName(Msg.PRIMARY_NAME.getMsg())
@@ -236,7 +236,7 @@ public class ControlPanel extends Menu {
         } else {
             Color color = gun.getColor(PortalType.SECONDARY);
             if (color == null) {
-                pg.getCfg().getColor(PortalType.SECONDARY);
+                color = pg.getCfg().getColor(PortalType.SECONDARY);
             }
             String clr = Msg.COLOR_FORMAT.getMsg(Param.P("{red}", color.getRed()), Param.P("{green}", color.getGreen()), Param.P("{blue}", color.getBlue()));
             setSlot(24, new EItem(Material.BANNER, 1, (short)14).setName(Msg.SECONDARY_NAME.getMsg())
