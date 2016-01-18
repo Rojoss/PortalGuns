@@ -104,8 +104,11 @@ public class CraftListener implements Listener {
             for (Map<String, String> entry : pg.getCfg().portalCraftCounts.values()) {
                 if (Util.hasPermission(event.getView().getPlayer(), entry.get("permission"))) {
                     Integer val = Parse.Int(entry.get(type));
-                    if ((val != null && val > maxCount) || val == -1) {
+                    if ((val != null && val == -1) || (val != null && val > maxCount)) {
                         maxCount = val;
+                        if (maxCount == -1) {
+                            break;
+                        }
                     }
                 }
             }
