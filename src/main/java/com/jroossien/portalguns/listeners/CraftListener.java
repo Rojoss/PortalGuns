@@ -5,6 +5,7 @@ import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.util.ItemUtil;
+import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class CraftListener implements Listener {
@@ -85,14 +87,30 @@ public class CraftListener implements Listener {
             //Check if it's a global or personal gun and get the owner and index.
             UUID owner = null;
             short index = 1;
-            if (Str.stripColor(result.getLore(0)).equalsIgnoreCase("Global")) {
+            String type = Str.stripColor(result.getLore(0)).toLowerCase();
+            if (type.equalsIgnoreCase("Global")) {
                 index = getIndex(inv.getMatrix(), pg.getRecipes().globalGun__indexItem);
-            } else if (Str.stripColor(result.getLore(0)).equalsIgnoreCase("Personal")) {
+            } else if (type.equalsIgnoreCase("Personal")) {
                 index = getIndex(inv.getMatrix(), pg.getRecipes().personalGun__indexItem);
                 owner = event.getView().getPlayer().getUniqueId();
             }
 
-            if (!Util.hasPermission(event.getView().getPlayer(), "portalguns.craft." + Str.stripColor(result.getLore(0)).toLowerCase())) {
+            if (!Util.hasPermission(event.getView().getPlayer(), "portalguns.craft." + type)) {
+                inv.setItem(0, ItemUtil.AIR);
+                return;
+            }
+
+            int maxCount = 0;
+            for (Map<String, String> entry : pg.getCfg().portalCraftCounts.values()) {
+                if (Util.hasPermission(event.getView().getPlayer(), entry.get("permission"))) {
+                    Integer val = Parse.Int(entry.get(type));
+                    if ((val != null && val > maxCount) || val == -1) {
+                        maxCount = val;
+                    }
+                }
+            }
+
+            if (maxCount == 0 || index > maxCount) {
                 inv.setItem(0, ItemUtil.AIR);
                 return;
             }

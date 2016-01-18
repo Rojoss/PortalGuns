@@ -9,9 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.material.MaterialData;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class PluginCfg extends EasyConfig {
 
@@ -51,6 +49,8 @@ public class PluginCfg extends EasyConfig {
     public boolean cleanup__shutdown__destroy = true;
     public int cleanup__destroyAfterSeconds = 1800;
 
+    public Map<String, Map<String, String>> portalCraftCounts = new HashMap<String, Map<String, String>>();
+
     public List<String> blockedPortalMaterials = Arrays.asList("LAVA", "STATIONARY_LAVA", "WATER", "STATIONARY_WATER", "STANDING_BANNER", "BREWING_STAND", "BED_BLOCK", "SIGN_POST", "WALL_SIGN", "IRON_FENCE",
             "FENCE", "FENCE_GATE", "BIRCH_FENCE", "BIRCH_FENCE_GATE", "SPRUCE_FENCE", "SPRUCE_FENCE_GATE", "JUNGLE_FENCE", "JUNGLE_FENCE_GATE", "ACACIA_FENCE", "ACACIA_FENCE_GATE",
             "DARK_OAK_FENCE", "DARK_OAK_FENCE_GATE", "NETHER_FENCE", "FENCE_GATE", "COBBLE_WALL", "WOODEN_DOOR", "BIRCH_DOOR", "SPRUCE_DOOR", "JUNGLE_DOOR", "ACACIA_DOOR", "DARK_OAK_DOOR",
@@ -63,6 +63,8 @@ public class PluginCfg extends EasyConfig {
 
     @Override
     public void load() {
+        super.load();
+
         primary = Parse.Color(portalgun__primaryColor);
         secondary = Parse.Color(portalgun__secondaryColor);
 
@@ -71,7 +73,20 @@ public class PluginCfg extends EasyConfig {
             gunMatData = new MaterialData(Material.BREWING_STAND_ITEM);
         }
 
-        super.load();
+        if (portalCraftCounts.isEmpty()) {
+            portalCraftCounts.put("staff", getCraftCountData("portalguns.group.staff", -1, -1));
+            portalCraftCounts.put("vip", getCraftCountData("portalguns.group.vip", 0, 3));
+            portalCraftCounts.put("basic", getCraftCountData("portalguns.group.basic", 0, 1));
+        }
+        save();
+    }
+
+    private Map<String, String> getCraftCountData(String perm, Integer global, Integer personal) {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("permission", perm);
+        data.put("global", global.toString());
+        data.put("personal", personal.toString());
+        return data;
     }
 
     public Color getColor(PortalType type) {
