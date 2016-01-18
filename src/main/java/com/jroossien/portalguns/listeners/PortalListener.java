@@ -142,6 +142,33 @@ public class PortalListener implements Listener {
         Player player = event.getPlayer();
         EItem item = new EItem(event.getItem());
 
+        //Delete portals by shift right clicking blocks portal is attached too.
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
+            Location loc = event.getClickedBlock().getLocation();
+            for (PortalData portal : pg.getPM().getPortals().values()) {
+                if (!portal.isValid()) {
+                    continue;
+                }
+                GunData gun = pg.getGM().getGun(portal.getGun());
+                if (gun == null) {
+                    continue;
+                }
+                if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId())) {
+                    continue;
+                }
+                if (!Util.hasPermission(player, "portalguns.portal.destroy." + gun.getType().toString().toLowerCase())) {
+                    continue;
+                }
+                for (Block block : portal.getBlocks()) {
+                    if (block.getRelative(portal.getDirection().getOppositeFace()).getLocation().equals(loc)) {
+                        pg.getPM().deletePortal(portal.getUid());
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+        }
+
         //Validate the item.
         if (!ItemUtil.compare(item, pg.getGM().getBlankGunItem(), false, true, false, true)) {
             return;
