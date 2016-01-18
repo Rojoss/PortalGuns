@@ -9,6 +9,7 @@ public enum Msg {
     NO_PERMISSION(Cat.GENERAL, "&cInsufficient permissions."),
     PLAYER_COMMAND(Cat.GENERAL, "&cThis is a player command only."),
     INVALID_USAGE(Cat.GENERAL, "&cInvalid usage! &7{usage}"),
+    INVALID_ONLINE_PLAYER(Cat.GENERAL, "&cInvalid player name specified! &7(The player must be online!)"),
     PRIMARY(Cat.GENERAL, "primary"),
     SECONDARY(Cat.GENERAL, "secondary"),
     NOBODY(Cat.GENERAL, "&cnobody"),
@@ -16,6 +17,13 @@ public enum Msg {
     TIME_MINUTES(Cat.GENERAL, "%M:%Sm"),
     TIME_HOURS(Cat.GENERAL, "%H:%M:%Ss"),
     TIME_DAYS(Cat.GENERAL, "%Dd %H:%M:%Ss"),
+
+    HELP(Cat.COMMAND, "&8======== &4&l/portalguns help &8========\n&6/pg [help] &8- &7Display this help page.\n&6/pg info &8- &7Display plugin information.\n" +
+            "&6/pg give {player} {type} {index} &8- &7Give a gun\n&6/pg reload &8- &7Reload configuration files."),
+    RELOADED(Cat.COMMAND, "&6All configurations reloaded!"),
+    INVALID_TYPE(Cat.COMMAND, "&cInvalid type specified! &7Must be global(g) or personal(p)!"),
+    GUN_GIVEN(Cat.COMMAND, "&6You've given &a{player} &6a {type} &6&lPortal &9&lGun&8(&7{index}&8)"),
+    GUN_RECEIVED(Cat.COMMAND, "&6You've received a {type} &6&lPortal &9&lGun&8(&7{index}&8)"),
 
     WORLD_NOT_LISTED(Cat.ERRORS, "&cYou can't use portal guns in this world!"),
     CROSS_WORLD(Cat.ERRORS, "&cPortals must be created in the same world. &8(&7You can delete the portal in your control panel&8)"),
@@ -34,6 +42,7 @@ public enum Msg {
     CANT_COLOR(Cat.ERRORS, "&cYou don't have permissions to modify the color!"),
     CANT_SHARE(Cat.ERRORS, "&cYou don't have permissions to share portals!"),
     CANT_TOGGLE_PERSISTENCE(Cat.ERRORS, "&cYou don't have permissions to toggle the persistence!"),
+    FAILED_GUN(Cat.ERRORS, "&cSomething went wrong trying to create the gun. &4Try again later!"),
 
     NO_ITEM_SPECIFIED(Cat.ITEM_PARSER, "&cNo item specified!"),
     UNKNOWN_ITEM_NAME(Cat.ITEM_PARSER, "&cThe item &4{input} &cis not a valid item!"),
@@ -157,6 +166,7 @@ public enum Msg {
 
     private enum Cat {
         GENERAL,
+        COMMAND,
         ERRORS,
         ITEM_PARSER,
         GUN,
