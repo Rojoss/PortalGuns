@@ -27,7 +27,7 @@ public class PluginCfg extends EasyConfig {
     public int portalgun__durability__global = -1;
     public int portalgun__durability__personal = 10;
     public int portalgun__cooldown__global = -1;
-    public int portalgun__cooldown__personal = -1;
+    public int portalgun__cooldown__personal = 5000;
 
     public int portal__maxDistance__global = -1;
     public int portal__maxDistance__personal = 64;

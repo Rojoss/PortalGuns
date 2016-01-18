@@ -3,13 +3,17 @@ package com.jroossien.portalguns.listeners;
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.config.messages.Msg;
+import com.jroossien.portalguns.config.messages.Param;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.*;
 import com.jroossien.portalguns.util.item.EItem;
+import com.jroossien.portalguns.util.particles.ParticleEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -80,6 +84,7 @@ public class PortalListener implements Listener {
                 short durability = portal.getDurability();
                 durability--;
                 if (durability <= 0) {
+                    portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ZOMBIE_REMEDY, 1, 2);
                     pg.getPM().deletePortal(portal.getUid());
                 } else {
                     portal.setDurability(durability);
@@ -103,12 +108,17 @@ public class PortalListener implements Listener {
             targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), event.getPlayer().getLocation().getYaw()));
             targetLoc.setPitch(event.getPlayer().getLocation().getPitch());
 
+            portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ZOMBIE_INFECT, 1, 2);
+            ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, portal.getCenter());
+
             //Teleport!
             Util.teleport(event.getPlayer(), targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
                 @Override
                 public void teleported(List<Entity> entities) {
                     Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
                     entities.get(0).setVelocity(velocity.multiply(0.2f));
+                    otherportal.getCenter().getWorld().playSound(otherportal.getCenter(), Sound.ZOMBIE_INFECT, 1, 1);
+                    ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, otherportal.getCenter());
                 }
             });
             return;
@@ -130,6 +140,7 @@ public class PortalListener implements Listener {
             }
             for (Block block : portal.getBlocks()) {
                 if (block.getRelative(portal.getDirection().getOppositeFace()).getLocation().equals(loc)) {
+                    Msg.CANT_BREAK_PORTAL_ATTACHED.send(event.getPlayer());
                     event.setCancelled(true);
                     return;
                 }
@@ -156,11 +167,14 @@ public class PortalListener implements Listener {
                 if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId())) {
                     continue;
                 }
-                if (!Util.hasPermission(player, "portalguns.portal.destroy." + gun.getType().toString().toLowerCase())) {
-                    continue;
-                }
                 for (Block block : portal.getBlocks()) {
                     if (block.getRelative(portal.getDirection().getOppositeFace()).getLocation().equals(loc)) {
+                        if (!Util.hasPermission(player, "portalguns.portal.destroy." + gun.getType().toString().toLowerCase())) {
+                            Msg.CANT_DESTROY.send(player);
+                            return;
+                        }
+                        ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 30, portal.getCenter());
+                        portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ZOMBIE_REMEDY, 1, 2);
                         pg.getPM().deletePortal(portal.getUid());
                         event.setCancelled(true);
                         return;
@@ -183,7 +197,8 @@ public class PortalListener implements Listener {
 
         if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.worldcheck")) {
             if (!pg.getCfg().worlds.contains(player.getWorld().getName())) {
-                //TODO: Fail..
+                player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+                Msg.WORLD_NOT_LISTED.send(player);
                 return;
             }
         }
@@ -194,13 +209,14 @@ public class PortalListener implements Listener {
         if (gun == null) {
             item.setName(Msg.INACTIVE_GUN.getMsg());
             player.setItemInHand(item);
+            player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1, 1);
             return;
         }
 
         //Check if gun is owned by the player.
         if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId())) {
-            Bukkit.broadcastMessage("Not your gun!");
-            //TODO: Fail..
+            player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+            Msg.NOT_YOUR_GUN.send(player);
             return;
         }
         //Update owner name if player changed name.
@@ -212,7 +228,8 @@ public class PortalListener implements Listener {
         //Control panel.
         if (player.isSneaking()) {
             if (!Util.hasPermission(player, "portalguns.controlpanel." + gun.getType().toString().toLowerCase())) {
-                //TODO: Fail...
+                player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+                Msg.CANT_ACCESS_CONTROL_PANEL.send(player);
                 return;
             }
 
@@ -221,7 +238,8 @@ public class PortalListener implements Listener {
         }
 
         if (!Util.hasPermission(player, "portalguns.portal.create." + gun.getType().toString().toLowerCase())) {
-            //TODO: Fail...
+            player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+            Msg.CANT_CREATE_PORTALS.send(player);
             return;
         }
 
@@ -235,8 +253,8 @@ public class PortalListener implements Listener {
             face = blocks.get(1).getFace(blocks.get(0));
         }
         if (!canAttachPortal(block) || !canHavePortal(block.getRelative(face))) {
-            Bukkit.broadcastMessage("Can't attach portal at block");
-            //TODO: Fail...
+            player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+            Msg.BLOCK_TYPE.send(player);
             return;
         }
 
@@ -252,7 +270,8 @@ public class PortalListener implements Listener {
             Block otherBlock = otherPortal.getBlock1();
             if (!otherBlock.getWorld().equals(block.getWorld())) {
                 if (!pg.getCfg().portal__allowCrossWorlds) {
-                    //TODO: Fail..
+                    player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+                    Msg.CROSS_WORLD.send(player);
                     return;
                 }
             } else {
@@ -262,7 +281,8 @@ public class PortalListener implements Listener {
                         maxDistance = pg.getCfg().portal__maxDistance__global;
                     }
                     if (maxDistance > 0 && otherBlock.getLocation().distance(block.getLocation()) > maxDistance) {
-                        //TODO: Fail..
+                        player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+                        Msg.DISTANCE.send(player);
                         return;
                     }
                 }
@@ -273,7 +293,8 @@ public class PortalListener implements Listener {
         Block side = getSideBlock(block, face);
         if (side == null ) {
             Bukkit.broadcastMessage("No side block to attach portal to");
-            //TODO: Fail...
+            player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+            Msg.NO_SIDE_BLOCK.send(player);
             return;
         }
 
@@ -282,7 +303,8 @@ public class PortalListener implements Listener {
             BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(block, block.getState(), block.getRelative(face.getOppositeFace()), item, player, true);
             pg.getServer().getPluginManager().callEvent(blockPlaceEvent);
             if (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()) {
-                //TODO: Fail...
+                player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+                Msg.CANT_BUILD.send(player);
                 return;
             }
         }
@@ -306,10 +328,24 @@ public class PortalListener implements Listener {
         int cooldownTime = gun.getType() == GunType.GLOBAL ? pg.getCfg().portalgun__cooldown__global : pg.getCfg().portalgun__cooldown__personal;
         if (cooldownTime > 0 && !Util.hasPermission(event.getPlayer(), "portalguns.bypass.cooldown")) {
             if (gun.onCooldown(type)) {
-                //TODO: Fail...
+                player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+                String format = "";
+                Long timeLeft = gun.getCooldownTime(type);
+                if (timeLeft < Util.MSEC_IN_MIN) {
+                    format = Msg.TIME_SECONDS.getMsg();
+                } else if (timeLeft < Util.MSEC_IN_HOUR) {
+                    format = Msg.TIME_MINUTES.getMsg();
+                } else if (timeLeft < Util.MSEC_IN_DAY) {
+                    format = Msg.TIME_HOURS.getMsg();
+                } else if (timeLeft < Util.MSEC_IN_MIN) {
+                    format = Msg.TIME_DAYS.getMsg();
+                }
+                if (!format.isEmpty()) {
+                    Msg.ON_COOLDOWN.send(player, Param.P("{type}", type.toString().toLowerCase()), Param.P("{time}", Util.formatTime(timeLeft, format, false)));
+                }
                 return;
             }
-            gun.setCooldown(type, (long)cooldownTime);
+            gun.setCooldown(type, System.currentTimeMillis() + (long)cooldownTime);
         }
 
         //Move portal if gun already has a portal for the type.
@@ -317,8 +353,12 @@ public class PortalListener implements Listener {
         if (portal != null) {
             portal.move(center, block.getRelative(face), side.getRelative(face), face, dir);
             pg.getPM().savePortal(portal);
+            player.playSound(player.getLocation(), Sound.WITHER_HURT, 0.6f, 2);
             if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
                 player.setItemInHand(pg.getGM().decreaseDurability(item));
+                if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) {
+                    player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1, 1);
+                }
             }
             return;
         }
@@ -326,13 +366,17 @@ public class PortalListener implements Listener {
         //Try create new portal.
         portal = pg.getPM().createPortal(gunUid, center, block.getRelative(face), side.getRelative(face), type, face, dir);
         if (portal == null) {
-            Bukkit.broadcastMessage("Failed creating new portal");
-            //TODO: Fail...
+            player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
+            Msg.FAILED.send(player);
             return;
         }
+        player.playSound(player.getLocation(), Sound.WITHER_HURT, 0.6f, 2);
         gun.setPortal(type, portal.getUid());
         if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
             player.setItemInHand(pg.getGM().decreaseDurability(item));
+            if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) {
+                player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1, 1);
+            }
         }
         pg.getGM().saveGun(gun);
     }

@@ -123,7 +123,6 @@ public class CraftListener implements Listener {
             if (gun == null) {
                 inv.setItem(0, blankGunItem.clone().setLore(result.getLore(0), Msg.CRAFT_NEW.getMsg()));
             } else {
-                //TODO: Add more data to the lore like portal colors etc.
                 inv.setItem(0, blankGunItem.clone().setLore(result.getLore(0), Msg.CRAFT_COPY.getMsg(), Msg.CRAFT_GUN_INFO_SEPARATOR.getMsg(),
                         Msg.GUN_UID_PREFIX.getMsg() + gun.getUid().toString(), Msg.GUN_OWNER.getMsg() +  (owner == null ? Msg.GLOBAL_OWNER.getMsg() : pg.getServer().getOfflinePlayer(owner).getName())));
             }

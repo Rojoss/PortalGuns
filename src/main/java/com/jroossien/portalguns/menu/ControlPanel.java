@@ -17,6 +17,7 @@ import com.jroossien.portalguns.util.item.EItem;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -47,22 +48,33 @@ public class ControlPanel extends Menu {
     @Override
     protected void onShow(InventoryOpenEvent event) {
         Player player = (Player)event.getPlayer();
-        if (!ItemUtil.compare(player.getItemInHand(), gm.getBlankGunItem(), false, false, false, true)) {
-            player.closeInventory();
-            return;
+        GunData gun = null;
+        if (!guns.containsKey(player.getUniqueId())) {
+            if (!ItemUtil.compare(player.getItemInHand(), gm.getBlankGunItem(), false, false, false, true)) {
+                player.closeInventory();
+                return;
+            }
+            EItem item = new EItem(player.getItemInHand());
+            gun = gm.getGun(Parse.UUID(Str.stripColor(item.getLore().get(0))));
+            if (gun == null || !gun.isValid()) {
+                player.closeInventory();
+                return;
+            }
+            guns.put(player.getUniqueId(), gun.getUid());
+        } else {
+            gun = gm.getGun(guns.get(player.getUniqueId()));
+            if (gun == null || !gun.isValid()) {
+                player.closeInventory();
+                return;
+            }
         }
-        EItem item = new EItem(player.getItemInHand());
-        GunData gun = gm.getGun(Parse.UUID(Str.stripColor(item.getLore().get(0))));
-        if (gun == null || !gun.isValid()) {
-            player.closeInventory();
-            return;
-        }
-        guns.put(player.getUniqueId(), gun.getUid());
+        player.playSound(player.getLocation(), Sound.HORSE_ARMOR, 1, 2);
         updateContent(player, gun);
     }
 
     @Override
     protected void onClose(InventoryCloseEvent event) {
+        ((Player)event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.HORSE_SADDLE, 1, 2);
         if (guns.containsKey(event.getPlayer().getUniqueId())) {
             guns.remove(event.getPlayer().getUniqueId());
         }
@@ -76,10 +88,12 @@ public class ControlPanel extends Menu {
         UUID uuid = player.getUniqueId();
 
         if (!guns.containsKey(uuid)) {
+            player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
             return;
         }
         GunData gun = gm.getGun(guns.get(uuid));
         if (gun == null || !gun.isValid()) {
+            player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
             return;
         }
         int slot = event.getRawSlot();
@@ -87,6 +101,8 @@ public class ControlPanel extends Menu {
         //Add/Remove shared players.
         if (slot == 3) {
             if (!Util.hasPermission(player, "portalguns.controlpanel.share")) {
+                player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
+                Msg.CANT_SHARE.send(player);
                 return;
             }
             if (gun.getType() == GunType.GLOBAL) {
@@ -100,6 +116,7 @@ public class ControlPanel extends Menu {
                 Msg.INPUT_SHARES_ADD.send(player);
             }
 
+            player.playSound(player.getLocation(), Sound.NOTE_STICKS, 0.5f, 0);
             input.put(player.getUniqueId(), gun.getUid().toString() + ":" + inputType);
             player.closeInventory();
             return;
@@ -112,7 +129,7 @@ public class ControlPanel extends Menu {
 
         PortalData portal = pm.getPortal(gun.getPortal(type));
         if (portal == null) {
-            //Fail...
+            player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
             return;
         }
         boolean update = false;
@@ -120,8 +137,12 @@ public class ControlPanel extends Menu {
         //Delete portal
         if (slot == 0 || slot == 8) {
             if (!Util.hasPermission(player, "portalguns.controlpanel.delete")) {
+                player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
+                Msg.CANT_DESTROY.send(player);
                 return;
             }
+            player.playSound(player.getLocation(), Sound.NOTE_STICKS, 0.5f, 0);
+            portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ZOMBIE_REMEDY, 1, 2);
             pm.deletePortal(gun.getPortal(type));
             updateContent(player, gun);
             return;
@@ -130,6 +151,8 @@ public class ControlPanel extends Menu {
         //Toggle persistent mode
         if (slot == 1 || slot == 7) {
             if (!Util.hasPermission(player, "portalguns.controlpanel.persistence")) {
+                player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
+                Msg.CANT_TOGGLE_PERSISTENCE.send(player);
                 return;
             }
             portal.setPersistent(!portal.isPersistent());
@@ -138,6 +161,8 @@ public class ControlPanel extends Menu {
 
         if (slot == 28 || slot == 32 || slot == 37 || slot == 41 || slot == 29 || slot == 33 || slot == 38 || slot == 42 || slot == 30 || slot == 34 || slot == 39 || slot == 43) {
             if (!Util.hasPermission(player, "portalguns.controlpanel.color")) {
+                Msg.CANT_COLOR.send(player);
+                player.playSound(player.getLocation(), Sound.ITEM_BREAK, 0.5f, 2);
                 return;
             }
 
@@ -173,6 +198,7 @@ public class ControlPanel extends Menu {
         }
 
         if (update) {
+            player.playSound(player.getLocation(), Sound.NOTE_STICKS, 0.5f, 0);
             gm.saveGun(gun);
             pm.savePortal(portal);
 
@@ -248,10 +274,13 @@ public class ControlPanel extends Menu {
         if (gun.getType() != GunType.GLOBAL) {
             List<String> shares = new ArrayList<String>();
             for (UUID uuid : gun.getShares()) {
-                shares.add(pg.getServer().getOfflinePlayer(uuid).getName());
+                String name = pg.getServer().getOfflinePlayer(uuid).getName();
+                if (name != null && !name.trim().isEmpty()) {
+                    shares.add(name);
+                }
             }
             setSlot(3, new EItem(Material.NAME_TAG).setName(Msg.SHARES_NAME.getMsg())
-                    .setLore(Msg.SHARES_DESC.getMsg(Param.P("{shares}", shares.isEmpty() ? Msg.NOBODY.getMsg() : Str.wrapString(Str.implode(shares, ", ", " & "), 50)))), player);
+                    .setLore(Msg.SHARES_DESC.getMsg(Param.P("{shares}", shares == null || shares.isEmpty() ? Msg.NOBODY.getMsg() : Str.wrapString(Str.implode(shares, ", ", " & "), 50)))), player);
         }
 
 
@@ -320,7 +349,7 @@ public class ControlPanel extends Menu {
         //Add/remove player to shares.
         if (type.equalsIgnoreCase("addShare") || type.equalsIgnoreCase("removeShare")) {
             OfflinePlayer oPlayer = pg.getServer().getOfflinePlayer(string);
-            if (oPlayer == null) {
+            if (oPlayer == null || !oPlayer.hasPlayedBefore()) {
                 Msg.INPUT_INVALID_PLAYER.send(player);
                 return;
             }
