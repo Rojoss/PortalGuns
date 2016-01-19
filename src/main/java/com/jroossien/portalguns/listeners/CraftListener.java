@@ -10,6 +10,7 @@ import com.jroossien.portalguns.util.Str;
 import com.jroossien.portalguns.util.Util;
 import com.jroossien.portalguns.util.item.EItem;
 import com.jroossien.portalguns.util.item.ItemParser;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -113,7 +114,7 @@ public class CraftListener implements Listener {
                 }
             }
 
-            if (maxCount == 0 || index > maxCount) {
+            if (maxCount == 0 || (maxCount > 0 && index > maxCount)) {
                 inv.setItem(0, ItemUtil.AIR);
                 return;
             }
