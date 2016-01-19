@@ -87,7 +87,7 @@ public class Commands {
                     Msg.NOT_A_NUMBER.send(sender, Param.P("{input}", args[3]));
                     return true;
                 }
-                if (index < 0) {
+                if (index <= 0) {
                     index = pg.getGM().getAvailableIndex(type == GunType.GLOBAL ? null : player.getUniqueId());
                 }
 
