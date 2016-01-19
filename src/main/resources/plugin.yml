@@ -9,3 +9,138 @@ commands:
     description: Main plugin command.
     usage: /<command> [help|reload|info|give]
     aliases: [portalgun,pg,pguns,pgun,portalg]
+    permission: portalguns.cmd
+permissions:
+ portalguns.*:
+   description: Wildcard for all permissions.
+   default: op
+   children:
+     portalguns.controlpanel: true
+     portalguns.craft: true
+     portalguns.portal.create: true
+     portalguns.portal.destroy: true
+     portalguns.portal.use: true
+     portalguns.bypass: true
+     portalguns.cmd: true
+ portalguns.user:
+   description: All default user permissions to craft, create and use portals.
+   default: true
+   children:
+     portalguns.controlpanel.personal: true
+     portalguns.controlpanel.share: true
+     portalguns.controlpanel.delete: true
+     portalguns.controlpanel.color: true
+     portalguns.craft: true
+     portalguns.portal.create: true
+     portalguns.portal.destroy.personal: true
+     portalguns.portal.use: true
+     portalguns.cmd: true
+ portalguns.controlpanel.*:
+   description: Required to access and use the control panel fully.
+   default: op
+   children:
+     portalguns.controlpanel: true
+     portalguns.controlpanel.share: true
+     portalguns.controlpanel.delete: true
+     portalguns.controlpanel.persistence: true
+     portalguns.controlpanel.color: true
+ portalguns.controlpanel.share:
+   description: Required to add/remove people in the control panel.
+   default: true
+ portalguns.controlpanel.delete:
+   description: Required to delete portals through the control panel.
+   default: true
+ portalguns.controlpanel.persistence:
+   description: Required to toggle the persistence.
+   default: op
+ portalguns.controlpanel.color:
+   description: Required to modify the portal colors.
+   default: true
+ portalguns.controlpanel:
+   description: Required to access the control panel of global and personal guns.
+   default: op
+   children:
+     portalguns.controlpanel.global: true
+     portalguns.controlpanel.personal: true
+ portalguns.controlpanel.global:
+   description: Required to access the control panel of global guns.
+   default: op
+ portalguns.controlpanel.personal:
+   description: Required to access the control panel of personal guns.
+   default: true
+ portalguns.craft:
+   description: Required to craft global and personal portals.
+   default: op
+   children:
+     portalguns.craft.global: true
+     portalguns.craft.personal: true
+ portalguns.craft.global:
+   description: Required to craft global portals.
+   default: true
+ portalguns.craft.personal:
+   description: Required to craft personal portals.
+   default: true
+ portalguns.portal.create:
+   description: Required to create global and personal portals.
+   default: op
+   children:
+     portalguns.portal.create.global: true
+     portalguns.portal.create.personal: true
+ portalguns.portal.create.global:
+   description: Required to create global portals using a global portal gun.
+   default: true
+ portalguns.portal.create.personal:
+   description: Required to create personal portals using a personal portal gun.
+   default: true
+ portalguns.portal.destroy:
+   description: Required to destroy global and personal portals by shift right clicking them.
+   default: op
+   children:
+     portalguns.portal.destroy.global: true
+     portalguns.portal.destroy.personal: true
+ portalguns.portal.destroy.global:
+   description: Required to destroy global portals by shift right clicking them.
+   default: op
+ portalguns.portal.destroy.personal:
+   description: Required to destroy personal portals by shift right clicking them.
+   default: true
+ portalguns.portal.use:
+   description: Required to use global and personal portals.
+   default: op
+   children:
+     portalguns.portal.use.global: true
+     portalguns.portal.use.personal: true
+ portalguns.portal.use.global:
+   description: Required to use global portals.
+   default: true
+ portalguns.portal.use.personal:
+   description: Required to use personal portals.
+   default: true
+ portalguns.bypass:
+   description: Allows to bypass all restrictions.
+   default: op
+   children:
+     portalguns.bypass.buildcheck: true
+     portalguns.bypass.cooldown: true
+     portalguns.bypass.durability: true
+     portalguns.bypass.worldcheck: true
+     portalguns.bypass.distancecheck: true
+     portalguns.bypass.breakattachedblock: true
+ portalguns.bypass.buildcheck:
+   description: When you have this permission you bypass the build check.
+   default: op
+ portalguns.bypass.cooldown:
+   description: When you have this permission you bypass the gun cooldowns.
+   default: op
+ portalguns.bypass.durability:
+   description: When you have this permission you bypass the gun and portal durability. (It won't lose any durability and wont break)
+   default: op
+ portalguns.bypass.worldcheck:
+   description: When you have this permission you bypass the world check.
+   default: op
+ portalguns.bypass.distancecheck:
+   description: When you have this permission you bypass the distance check.
+   default: op
+ portalguns.bypass.breakattachedblock:
+   description: When you have this permission you can break blocks a portal is attached too.
+   default: op
