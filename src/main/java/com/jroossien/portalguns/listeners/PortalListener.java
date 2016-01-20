@@ -23,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -142,6 +143,29 @@ public class PortalListener implements Listener {
             for (Block block : portal.getBlocks()) {
                 if (block.getRelative(portal.getDirection().getOppositeFace()).getLocation().equals(loc)) {
                     Msg.CANT_BREAK_PORTAL_ATTACHED.send(event.getPlayer());
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    private void blockBuild(BlockPlaceEvent event) {
+        if (!pg.getCfg().portal__preventBuildingInside) {
+            return;
+        }
+        if (Util.hasPermission(event.getPlayer(), "portalguns.bypass.buildinportal")) {
+            return;
+        }
+        Location loc = event.getBlock().getLocation();
+        for (PortalData portal : pg.getPM().getPortals().values()) {
+            if (!portal.isValid()) {
+                continue;
+            }
+            for (Block block : portal.getBlocks()) {
+                if (block.getLocation().equals(loc)) {
+                    Msg.CANT_BUILD_IN_PORTAL.send(event.getPlayer());
                     event.setCancelled(true);
                     return;
                 }

@@ -127,6 +127,7 @@ permissions:
      portalguns.bypass.worldcheck: true
      portalguns.bypass.distancecheck: true
      portalguns.bypass.breakattachedblock: true
+     portalguns.bypass.buildinportal: true
  portalguns.bypass.buildcheck:
    description: When you have this permission you bypass the build check.
    default: op
@@ -144,6 +145,9 @@ permissions:
    default: op
  portalguns.bypass.breakattachedblock:
    description: When you have this permission you can break blocks a portal is attached too.
+   default: op
+ portalguns.bypass.buildinportal:
+   description: When you have this permission you can build blocks inside a portal.
    default: op
  portalguns.group.basic:
    description: Basic group for crafting counts.

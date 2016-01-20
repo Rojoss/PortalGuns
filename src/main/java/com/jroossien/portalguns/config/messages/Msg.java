@@ -38,6 +38,7 @@ public enum Msg {
     ON_COOLDOWN(Cat.ERRORS, "&cYou can't create a {type} portal for another &4{time}&c!"),
     FAILED(Cat.ERRORS, "&cSomething went wrong trying to create your portal. &4Try again later!"),
     CANT_BREAK_PORTAL_ATTACHED(Cat.ERRORS, "&cThis block has a portal attached. &4You can't break it!"),
+    CANT_BUILD_IN_PORTAL(Cat.ERRORS, "&cYou can't build here! &7Occupied by a portal!"),
     CANT_DESTROY(Cat.ERRORS, "&cYou don't have permissions to destroy portals!"),
     CANT_COLOR(Cat.ERRORS, "&cYou don't have permissions to modify the color!"),
     CANT_SHARE(Cat.ERRORS, "&cYou don't have permissions to share portals!"),
