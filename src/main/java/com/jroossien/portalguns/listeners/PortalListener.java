@@ -292,7 +292,6 @@ public class PortalListener implements Listener {
         //Try to get a nearby side block as a portal needs two blocks.
         Block side = getSideBlock(block, face);
         if (side == null ) {
-            Bukkit.broadcastMessage("No side block to attach portal to");
             player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
             Msg.NO_SIDE_BLOCK.send(player);
             return;
