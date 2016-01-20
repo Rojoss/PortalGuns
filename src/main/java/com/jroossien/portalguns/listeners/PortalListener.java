@@ -50,7 +50,7 @@ public class PortalListener implements Listener {
                 continue;
             }
             if (portal.onCooldown()) {
-                return;
+                continue;
             }
             if (!portal.getBlock1().equals(event.getTo().getBlock()) && !portal.getBlock2().equals(event.getTo().getBlock())) {
                 if (portal.getDirection() != BlockFace.DOWN) {
@@ -94,6 +94,7 @@ public class PortalListener implements Listener {
 
             //Put the other portal on cooldown to fix infinite looping with portals on the ground.
             otherportal.setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
+            portal.setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
 
             //Get location and add some offset to prevent glitching in blocks.
             Location targetLoc = otherportal.getCenter().clone();
