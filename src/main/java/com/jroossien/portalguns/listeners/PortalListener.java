@@ -113,12 +113,18 @@ public class PortalListener implements Listener {
             portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ZOMBIE_INFECT, 1, 2);
             ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, portal.getCenter());
 
+            final Vector playerVelocity = event.getPlayer().getVelocity();
+
             //Teleport!
             Util.teleport(event.getPlayer(), targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
                 @Override
                 public void teleported(List<Entity> entities) {
                     Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
-                    entities.get(0).setVelocity(velocity.multiply(0.2f));
+                    if (pg.getCfg().portal__velocity__relativeFromPlayer) {
+                        entities.get(0).setVelocity(velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier).add(playerVelocity.multiply(pg.getCfg().portal__velocity__playerMultiplier)));
+                    } else {
+                        entities.get(0).setVelocity(velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier));
+                    }
                     otherportal.getCenter().getWorld().playSound(otherportal.getCenter(), Sound.ZOMBIE_INFECT, 1, 1);
                     ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, otherportal.getCenter());
                 }
