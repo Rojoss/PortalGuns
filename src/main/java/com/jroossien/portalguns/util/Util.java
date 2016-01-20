@@ -90,6 +90,32 @@ public class Util {
         return playerYaw;
     }
 
+    public static float normalAngle(float angle) {
+        while (angle <= -180) angle += 360;
+        while (angle > 180) angle -= 360;
+        return angle;
+    }
+
+    public static BlockFace yawToFace(float yaw) {
+        yaw = Util.normalAngle(yaw);
+        switch ((int) yaw) {
+            case 0 : return BlockFace.NORTH;
+            case 90 : return BlockFace.EAST;
+            case 180 : return BlockFace.SOUTH;
+            case 270 : return BlockFace.WEST;
+        }
+        //Let's apply angle differences
+        if (yaw >= -45 && yaw < 45) {
+            return BlockFace.NORTH;
+        } else if (yaw >= 45 && yaw < 135) {
+            return BlockFace.EAST;
+        } else if (yaw >= -135 && yaw < -45) {
+            return BlockFace.WEST;
+        } else {
+            return BlockFace.SOUTH;
+        }
+    }
+
     /**
      * Get the absolute center location between two blocks of the x,y,z axis.
      * @param block1 The first block.
