@@ -35,6 +35,7 @@ permissions:
      portalguns.portal.destroy.personal: true
      portalguns.portal.use: true
      portalguns.cmd: true
+     portalguns.group.basic: true
  portalguns.controlpanel.*:
    description: Required to access and use the control panel fully.
    default: op
@@ -144,3 +145,6 @@ permissions:
  portalguns.bypass.breakattachedblock:
    description: When you have this permission you can break blocks a portal is attached too.
    default: op
+ portalguns.group.basic:
+   description: Basic group for crafting counts.
+   default: true
