@@ -51,7 +51,7 @@ public class Commands {
                 sender.sendMessage(Str.color("&8===== &4&lPortalGuns Plugin &8=====\n" +
                         "&6&lAuthor&8&l: &aRojoss&8(&7Jos&8)\n" +
                         "&6&lVersion&8&l: &a" + pg.getDescription().getVersion() + "\n" +
-                        "&6&lSpigot URL&8&l: &9{placeholder}"));
+                        "&6&lSpigot URL&8&l: &9https://www.spigotmc.org/resources/17210"));
                 return true;
             }
 
