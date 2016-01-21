@@ -26,19 +26,23 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PortalListener implements Listener {
 
     private PortalGuns pg;
     private BlockFace[] sidesNorth = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
     private BlockFace[] sidesEast = {BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH};
+
+    private Map<UUID, List<EItem>> itemDrops = new HashMap<UUID, List<EItem>>();
 
     public PortalListener(PortalGuns pg) {
         this.pg = pg;
@@ -186,15 +190,13 @@ public class PortalListener implements Listener {
     @EventHandler
     private void dropPortalGun(PlayerDropItemEvent event) {
         EItem item = new EItem(event.getItemDrop().getItemStack());
-
-        //Validate the item.
+        if (!pg.getCfg().portalgun__preventDrop) {
+            return;
+        }
         if (!ItemUtil.compare(item, pg.getGM().getBlankGunItem(), false, true, false, true)) {
             return;
         }
         if (item.getLore().isEmpty() || !Str.replaceColor(item.getLore().get(0)).startsWith(Msg.GUN_UID_PREFIX.getMsg()) || !Str.replaceColor(item.getLore().get(1)).startsWith(Msg.GUN_OWNER.getMsg())) {
-            return;
-        }
-        if (!pg.getCfg().portalgun__preventDrop) {
             return;
         }
         if (Util.hasPermission(event.getPlayer(), "portalguns.bypass.dropgun")) {
@@ -202,6 +204,43 @@ public class PortalListener implements Listener {
         }
         event.setCancelled(true);
         Msg.CANT_DROP.send(event.getPlayer());
+    }
+
+    @EventHandler
+    private void playerDeath(PlayerDeathEvent event) {
+        if (!pg.getCfg().portalgun__keepOnDeath) {
+            return;
+        }
+        Player player = event.getEntity();
+        List<ItemStack> drops = new ArrayList<ItemStack>(event.getDrops());
+        for (ItemStack drop : drops) {
+            EItem item = new EItem(drop);
+            if (!ItemUtil.compare(item, pg.getGM().getBlankGunItem(), false, true, false, true)) {
+                continue;
+            }
+            if (item.getLore().isEmpty() || !Str.replaceColor(item.getLore().get(0)).startsWith(Msg.GUN_UID_PREFIX.getMsg()) || !Str.replaceColor(item.getLore().get(1)).startsWith(Msg.GUN_OWNER.getMsg())) {
+                continue;
+            }
+            event.getDrops().remove(item);
+            List<EItem> playerDrops = new ArrayList<EItem>();
+            if (itemDrops.containsKey(player.getUniqueId())) {
+                playerDrops = itemDrops.get(player.getUniqueId());
+            }
+            playerDrops.add(item);
+            itemDrops.put(player.getUniqueId(), playerDrops);
+        }
+    }
+
+    @EventHandler
+    private void playerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        if (!itemDrops.containsKey(player.getUniqueId())) {
+            return;
+        }
+        for (EItem item : itemDrops.get(player.getUniqueId())) {
+            ItemUtil.add(player.getInventory(), item, true, true);
+        }
+        itemDrops.remove(player.getUniqueId());
     }
 
     @EventHandler
