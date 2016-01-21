@@ -56,7 +56,7 @@ public class MainListener implements Listener {
         for (GunData gun : guns) {
             PortalData primary = pg.getPM().getPortal(gun.getPrimaryPortal());
             PortalData secondary = pg.getPM().getPortal(gun.getSecondaryPortal());
-            if (primary != null && !secondary.isEnabled()) {
+            if (primary != null && !primary.isEnabled()) {
                 primary.setEnabled(true);
                 pg.getPM().savePortal(primary);
             }
