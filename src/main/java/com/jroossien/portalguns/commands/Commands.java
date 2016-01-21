@@ -2,6 +2,7 @@ package com.jroossien.portalguns.commands;
 
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
+import com.jroossien.portalguns.UserManager;
 import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.config.messages.Param;
 import com.jroossien.portalguns.guns.GunData;
@@ -52,6 +53,36 @@ public class Commands {
                         "&6&lAuthor&8&l: &aRojoss&8(&7Jos&8)\n" +
                         "&6&lVersion&8&l: &a" + pg.getDescription().getVersion() + "\n" +
                         "&6&lSpigot URL&8&l: &9https://www.spigotmc.org/resources/17210"));
+                return true;
+            }
+
+            //Admin
+            if (args[0].equalsIgnoreCase("admin") || args[0].equalsIgnoreCase("a")) {
+                if (!Util.hasPermission(sender, "portalguns.cmd.admin")) {
+                    Msg.NO_PERMISSION.send(sender);
+                    return true;
+                }
+                if (args.length < 2 && !(sender instanceof Player)) {
+                    Msg.INVALID_USAGE.send(sender, Param.P("{usage}", "/" + label + " " + args[0] + " {player}"));
+                    return true;
+                }
+
+                Player player = args.length > 1 ? pg.getServer().getPlayer(args[1]) : (Player)sender;
+                if (player == null) {
+                    Msg.INVALID_ONLINE_PLAYER.send(sender);
+                    return true;
+                }
+
+                if (UserManager.get().isAdmin(player.getUniqueId())) {
+                    UserManager.get().removeAdmin(player.getUniqueId());
+                    Msg.ADMIN_DISABLED.send(player);
+                } else {
+                    UserManager.get().addAdmin(player.getUniqueId());
+                    Msg.ADMIN_ENABLED.send(player);
+                }
+                if (!sender.equals(player)) {
+                    Msg.ADMIN_TOGGLE_OTHER.send(sender, Param.P("{player}", player.getName()), Param.P("{type}",  UserManager.get().isAdmin(player.getUniqueId()) ? Msg.ENABLED.getMsg() : Msg.DISABLED.getMsg()));
+                }
                 return true;
             }
 

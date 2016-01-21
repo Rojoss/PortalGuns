@@ -7,7 +7,7 @@ softdepend: [Vault]
 commands:
   portalguns:
     description: Main plugin command.
-    usage: /<command> [help|reload|info|give]
+    usage: /<command> [help|reload|info|give|admin]
     aliases: [portalgun,pg,pguns,pgun,portalg]
     permission: portalguns.cmd
 permissions:

@@ -12,6 +12,8 @@ public enum Msg {
     INVALID_ONLINE_PLAYER(Cat.GENERAL, "&cInvalid player name specified! &7(The player must be online!)"),
     PRIMARY(Cat.GENERAL, "primary"),
     SECONDARY(Cat.GENERAL, "secondary"),
+    ENABLED(Cat.GENERAL, "&aenabled"),
+    DISABLED(Cat.GENERAL, "&cdisabled"),
     NOBODY(Cat.GENERAL, "&cnobody"),
     TIME_SECONDS(Cat.GENERAL, "%S.%%s"),
     TIME_MINUTES(Cat.GENERAL, "%M:%Sm"),
@@ -19,11 +21,14 @@ public enum Msg {
     TIME_DAYS(Cat.GENERAL, "%Dd %H:%M:%Ss"),
 
     HELP(Cat.COMMAND, "&8======== &4&l/portalguns help &8========\n&6/pg [help] &8- &7Display this help page.\n&6/pg info &8- &7Display plugin information.\n" +
-            "&6/pg give {player} {type} {index} &8- &7Give a gun\n&6/pg reload &8- &7Reload configuration files."),
+            "&6/pg give {player} {type} {index} &8- &7Give a gun\n&6/pg admin [player] &8- &7Toggle admin mode.\n&6/pg reload &8- &7Reload configuration files."),
     RELOADED(Cat.COMMAND, "&6All configurations reloaded!"),
     INVALID_TYPE(Cat.COMMAND, "&cInvalid type specified! &7Must be global(g) or personal(p)!"),
     GUN_GIVEN(Cat.COMMAND, "&6You've given &a{player} &6a {type} &6&lPortal &9&lGun&8(&7{index}&8)"),
     GUN_RECEIVED(Cat.COMMAND, "&6You've received a {type} &6&lPortal &9&lGun&8(&7{index}&8)"),
+    ADMIN_ENABLED(Cat.COMMAND, "&6Admin mode &aenabled&6! &8(&7You can now see and use all portals and use any portal gun!&8)"),
+    ADMIN_DISABLED(Cat.COMMAND, "&6Admin mode &cdisabled&6! &8(&7Everything is back to normal!&8)"),
+    ADMIN_TOGGLE_OTHER(Cat.COMMAND, "&6You've {type} &6admin mode for &a{player}&6!"),
 
     WORLD_NOT_LISTED(Cat.ERRORS, "&cYou can't use portal guns in this world!"),
     CROSS_WORLD(Cat.ERRORS, "&cPortals must be created in the same world. &8(&7You can delete the portal in your control panel&8)"),
