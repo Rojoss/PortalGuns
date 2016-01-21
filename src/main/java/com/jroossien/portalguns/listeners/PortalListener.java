@@ -2,6 +2,7 @@ package com.jroossien.portalguns.listeners;
 
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
+import com.jroossien.portalguns.UserManager;
 import com.jroossien.portalguns.config.messages.Msg;
 import com.jroossien.portalguns.config.messages.Param;
 import com.jroossien.portalguns.guns.GunData;
@@ -67,11 +68,12 @@ public class PortalListener implements Listener {
                 return;
             }
 
-            if (!Util.hasPermission(event.getPlayer(), "portalguns.portal.use." + gun.getType().toString().toLowerCase())) {
+            Player player = event.getPlayer();
+            if (!Util.hasPermission(player, "portalguns.portal.use." + gun.getType().toString().toLowerCase())) {
                 return;
             }
 
-            if (gun.getOwner() != null && !gun.getOwner().equals(event.getPlayer().getUniqueId()) && !gun.getShares().contains(event.getPlayer().getUniqueId())) {
+            if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId()) && !gun.getShares().contains(player.getUniqueId()) && !UserManager.get().isAdmin(player.getUniqueId())) {
                 return;
             }
 
@@ -82,7 +84,7 @@ public class PortalListener implements Listener {
             }
 
             //Durability check and delete portal if out of durability.
-            if (portal.getDurability() != null && !Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
+            if (portal.getDurability() != null && !Util.hasPermission(player, "portalguns.bypass.durability")) {
                 short durability = portal.getDurability();
                 durability--;
                 if (durability <= 0) {
@@ -108,16 +110,16 @@ public class PortalListener implements Listener {
             }
 
             //Calculate pitch and yaw to look away from the portal.
-            targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), event.getPlayer().getLocation().getYaw()));
-            targetLoc.setPitch(event.getPlayer().getLocation().getPitch());
+            targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), player.getLocation().getYaw()));
+            targetLoc.setPitch(player.getLocation().getPitch());
 
             portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ZOMBIE_INFECT, 1, 2);
             ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, portal.getCenter());
 
-            final Vector playerVelocity = event.getPlayer().getVelocity();
+            final Vector playerVelocity = player.getVelocity();
 
             //Teleport!
-            Util.teleport(event.getPlayer(), targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
+            Util.teleport(player, targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
                 @Override
                 public void teleported(List<Entity> entities) {
                     Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
@@ -246,13 +248,13 @@ public class PortalListener implements Listener {
         }
 
         //Check if gun is owned by the player.
-        if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId())) {
+        if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId()) && !UserManager.get().isAdmin(player.getUniqueId())) {
             player.playSound(player.getLocation(), Sound.FIZZ, 0.5f, 2);
             Msg.NOT_YOUR_GUN.send(player);
             return;
         }
         //Update owner name if player changed name.
-        if (gun.getOwner() != null) {
+        if (gun.getOwner() != null && gun.getOwner().equals(player.getUniqueId())) {
             item.setLore(1, Msg.GUN_OWNER.getMsg() + player.getName());
             player.setItemInHand(item);
         }

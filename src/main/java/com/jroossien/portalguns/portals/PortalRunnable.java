@@ -2,6 +2,7 @@ package com.jroossien.portalguns.portals;
 
 import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
+import com.jroossien.portalguns.UserManager;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.util.particles.ParticleEffect;
@@ -61,7 +62,14 @@ public class PortalRunnable extends BukkitRunnable {
                 if (gun.getType() == GunType.GLOBAL || pg.getCfg().portal__alwaysVisible) {
                     ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), 32);
                 } else {
-                    ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), gun.getPlayers());
+                    List<Player> players = gun.getPlayers();
+                    List<Player> admins = UserManager.get().getAdminPlayers();
+                    for (Player admin : admins) {
+                        if (!players.contains(admin)) {
+                            players.add(admin);
+                        }
+                    }
+                    ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), players);
                 }
                 loc.subtract(v);
             }

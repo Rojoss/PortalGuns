@@ -1,6 +1,7 @@
 package com.jroossien.portalguns.util;
 
 import com.jroossien.portalguns.PortalGuns;
+import com.jroossien.portalguns.UserManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -33,6 +34,9 @@ public class Util {
      * @return true if the sender has any of the permissions and false if not.
      */
     public static boolean hasPermission(CommandSender sender, String permission) {
+        if (sender instanceof Player && UserManager.get().isAdmin(((Player)sender).getUniqueId())) {
+            return true;
+        }
         permission = permission.toLowerCase().trim();
         if (sender.hasPermission(permission)) {
             return true;

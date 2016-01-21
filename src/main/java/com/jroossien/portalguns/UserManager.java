@@ -1,5 +1,8 @@
 package com.jroossien.portalguns;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +39,17 @@ public class UserManager {
 
     public List<UUID> getAdmins() {
         return admins;
+    }
+
+    public List<Player> getAdminPlayers() {
+        List<Player> players = new ArrayList<Player>();
+        for (UUID uuid : admins) {
+            Player player = Bukkit.getServer().getPlayer(uuid);
+            if (player != null) {
+                players.add(player);
+            }
+        }
+        return players;
     }
 
     public static UserManager get() {
