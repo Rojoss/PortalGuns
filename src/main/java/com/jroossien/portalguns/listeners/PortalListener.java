@@ -26,6 +26,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
@@ -180,6 +181,27 @@ public class PortalListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    private void dropPortalGun(PlayerDropItemEvent event) {
+        EItem item = new EItem(event.getItemDrop().getItemStack());
+
+        //Validate the item.
+        if (!ItemUtil.compare(item, pg.getGM().getBlankGunItem(), false, true, false, true)) {
+            return;
+        }
+        if (item.getLore().isEmpty() || !Str.replaceColor(item.getLore().get(0)).startsWith(Msg.GUN_UID_PREFIX.getMsg()) || !Str.replaceColor(item.getLore().get(1)).startsWith(Msg.GUN_OWNER.getMsg())) {
+            return;
+        }
+        if (!pg.getCfg().portalgun__preventDrop) {
+            return;
+        }
+        if (Util.hasPermission(event.getPlayer(), "portalguns.bypass.dropgun")) {
+            return;
+        }
+        event.setCancelled(true);
+        Msg.CANT_DROP.send(event.getPlayer());
     }
 
     @EventHandler

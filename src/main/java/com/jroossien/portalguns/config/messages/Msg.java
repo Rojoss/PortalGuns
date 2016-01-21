@@ -49,6 +49,7 @@ public enum Msg {
     CANT_SHARE(Cat.ERRORS, "&cYou don't have permissions to share portals!"),
     CANT_TOGGLE_PERSISTENCE(Cat.ERRORS, "&cYou don't have permissions to toggle the persistence!"),
     FAILED_GUN(Cat.ERRORS, "&cSomething went wrong trying to create the gun. &4Try again later!"),
+    CANT_DROP(Cat.ERRORS, "&cYou can't drop your portal gun!"),
 
     NO_ITEM_SPECIFIED(Cat.ITEM_PARSER, "&cNo item specified!"),
     UNKNOWN_ITEM_NAME(Cat.ITEM_PARSER, "&cThe item &4{input} &cis not a valid item!"),

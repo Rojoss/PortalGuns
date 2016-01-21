@@ -128,6 +128,7 @@ permissions:
      portalguns.bypass.distancecheck: true
      portalguns.bypass.breakattachedblock: true
      portalguns.bypass.buildinportal: true
+     portalguns.bypass.dropgun: true
  portalguns.bypass.buildcheck:
    description: When you have this permission you bypass the build check.
    default: op
@@ -148,6 +149,9 @@ permissions:
    default: op
  portalguns.bypass.buildinportal:
    description: When you have this permission you can build blocks inside a portal.
+   default: op
+ portalguns.bypass.dropgun:
+   description: When you have this permission you can drop the portal gun.
    default: op
  portalguns.group.basic:
    description: Basic group for crafting counts.
