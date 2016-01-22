@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,6 +144,12 @@ public class Util {
     public static Location offsetLocation(Location location, BlockFace direction, double offset) {
         location.add((double)direction.getModX() * offset, (double)direction.getModY() * offset, (double)direction.getModZ() * offset);
         return location;
+    }
+
+    public static double getMax(Vector v) {
+        double max = Math.max(Math.max(v.getX(), v.getY()), v.getZ());
+        double min = Math.abs(Math.min(Math.min(v.getX(), v.getY()), v.getZ()));
+        return Math.max(max, min);
     }
 
     /**

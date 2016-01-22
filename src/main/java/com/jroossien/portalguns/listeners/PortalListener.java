@@ -11,7 +11,6 @@ import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.*;
 import com.jroossien.portalguns.util.item.EItem;
 import com.jroossien.portalguns.util.particles.ParticleEffect;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,7 +23,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -73,7 +71,7 @@ public class PortalListener implements Listener {
                 return;
             }
 
-            Player player = event.getPlayer();
+            final Player player = event.getPlayer();
             if (!Util.hasPermission(player, "portalguns.portal.use." + gun.getType().toString().toLowerCase())) {
                 return;
             }
@@ -127,12 +125,21 @@ public class PortalListener implements Listener {
             Util.teleport(player, targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
                 @Override
                 public void teleported(List<Entity> entities) {
+                    //Apply velocity
                     Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
-                    if (pg.getCfg().portal__velocity__relativeFromPlayer) {
-                        entities.get(0).setVelocity(velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier).add(playerVelocity.multiply(pg.getCfg().portal__velocity__playerMultiplier)));
+                    if (pg.getCfg().portal__velocity__player__enable) {
+                        if (pg.getCfg().portal__velocity__player__directional) {
+                            velocity = velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier);
+                            entities.get(0).setVelocity(velocity.add(playerVelocity.multiply(pg.getCfg().portal__velocity__player__multiplier)));
+                        } else {
+                            velocity = velocity.multiply(Util.getMax(playerVelocity) * pg.getCfg().portal__velocity__player__multiplier);
+                            entities.get(0).setVelocity(velocity);
+                        }
                     } else {
-                        entities.get(0).setVelocity(velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier));
+                        velocity = velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier);
+                        entities.get(0).setVelocity(velocity);
                     }
+
                     otherportal.getCenter().getWorld().playSound(otherportal.getCenter(), Sound.ZOMBIE_INFECT, 1, 1);
                     ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, otherportal.getCenter());
                 }

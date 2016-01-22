@@ -44,9 +44,10 @@ public class PluginCfg extends EasyConfig {
     public int portal__durability__personal = -1;
     public boolean portal__preventBreakingAttachedBlocks = true;
     public boolean portal__preventBuildingInside = true;
-    public double portal__velocity__defaultMultiplier = 0.3d;
-    public boolean portal__velocity__relativeFromPlayer = true;
-    public double portal__velocity__playerMultiplier = 1.1d;
+    public double portal__velocity__defaultMultiplier = 0.5d;
+    public boolean portal__velocity__player__enable = true;
+    public boolean portal__velocity__player__directional = false;
+    public double portal__velocity__player__multiplier = 1.5d;
 
     public boolean cleanup__logout__destroy = false;
     public boolean cleanup__logout__disable = true;
