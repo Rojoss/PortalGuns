@@ -1,19 +1,17 @@
 package com.jroossien.portalguns.portals;
 
 import com.jroossien.portalguns.PortalGuns;
-import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.UserManager;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
-import com.jroossien.portalguns.util.particles.ParticleEffect;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PortalRunnable extends BukkitRunnable {
@@ -60,7 +58,8 @@ public class PortalRunnable extends BukkitRunnable {
                 Vector v = rotateVector(widthAxis, lengthAxis, portal.getDirection(), portal.getSecondaryDirection());
 
                 if (gun.getType() == GunType.GLOBAL || pg.getCfg().portal__alwaysVisible) {
-                    ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), 32);
+                    loc.getWorld().spawnParticle(Particle.REDSTONE, loc.add(v), 0, (color.getRed() == 0 ? Float.MIN_NORMAL : (float)color.getRed()/255f), (float)color.getGreen()/255f, (float)color.getBlue()/255f, 1);
+                    loc.subtract(v);
                 } else {
                     List<Player> players = gun.getPlayers();
                     List<Player> admins = UserManager.get().getAdminPlayers();
@@ -69,9 +68,12 @@ public class PortalRunnable extends BukkitRunnable {
                             players.add(admin);
                         }
                     }
-                    ParticleEffect.REDSTONE.display(new ParticleEffect.OrdinaryColor(color.getRed(), color.getGreen(), color.getBlue()), loc.add(v), players);
+                    for (Player player : players) {
+                        loc.getWorld().spawnParticle(Particle.REDSTONE, loc.add(v), 0, (color.getRed() == 0 ? Float.MIN_NORMAL : (float)color.getRed()/255f), (float)color.getGreen()/255f, (float)color.getBlue()/255f, 1);
+                        loc.subtract(v);
+                    }
                 }
-                loc.subtract(v);
+                //loc.subtract(v);
             }
         }
         step++;
