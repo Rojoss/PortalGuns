@@ -9,9 +9,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.PluginDisableEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainListener implements Listener {
@@ -29,25 +27,6 @@ public class MainListener implements Listener {
         }
         pg.getControlPanel().setInputResult(event.getPlayer(), event.getMessage());
         event.setCancelled(true);
-    }
-
-    @EventHandler
-    private void onDisable(PluginDisableEvent event) {
-        if (!pg.getCfg().cleanup__shutdown__destroy) {
-            return;
-        }
-        List<PortalData> portals = new ArrayList<PortalData>(pg.getPM().getPortals().values());
-        for (PortalData portal : portals) {
-            if (!portal.isValid()) {
-                return;
-            }
-            if (portal.isPersistent()) {
-                return;
-            }
-            pg.getPM().deletePortal(portal.getUid());
-        }
-        pg.getPortalCfg().forceSave();
-        pg.getGunCfg().forceSave();
     }
 
     @EventHandler
