@@ -54,7 +54,6 @@ public class PluginCfg extends EasyConfig {
     public boolean cleanup__logout__disablePersistent = true;
     public boolean cleanup__death__destroy = true;
     public boolean cleanup__shutdown__destroy = true;
-    public int cleanup__destroyAfterSeconds = 1800;
 
     public Map<String, Map<String, String>> portalCraftCounts = new HashMap<String, Map<String, String>>();
 

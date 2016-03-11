@@ -55,6 +55,22 @@ public class PortalGuns extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!getCfg().cleanup__shutdown__destroy) {
+            return;
+        }
+        List<PortalData> portals = new ArrayList<PortalData>(getPM().getPortals().values());
+        for (PortalData portal : portals) {
+            if (!portal.isValid()) {
+                return;
+            }
+            if (portal.isPersistent()) {
+                return;
+            }
+            getPM().deletePortal(portal.getUid());
+        }
+        getPortalCfg().save();
+        getGunCfg().save();
+
         instance = null;
         log("disabled");
     }
