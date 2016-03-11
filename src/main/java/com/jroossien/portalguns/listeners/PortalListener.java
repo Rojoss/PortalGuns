@@ -88,7 +88,7 @@ public class PortalListener implements Listener {
                 short durability = portal.getDurability();
                 durability--;
                 if (durability <= 0) {
-                    portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1, 2);
+                    pg.getSounds().getSound("portal-destroy").play(portal.getCenter().getWorld(), portal.getCenter());
                     pg.getPM().deletePortal(portal.getUid());
                 } else {
                     portal.setDurability(durability);
@@ -113,7 +113,7 @@ public class PortalListener implements Listener {
             targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), player.getLocation().getYaw()));
             targetLoc.setPitch(player.getLocation().getPitch());
 
-            portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ENTITY_ZOMBIE_INFECT, 1, 2);
+            pg.getSounds().getSound("portal-enter").play(portal.getCenter().getWorld(), portal.getCenter());
             portal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, portal.getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
 
             final Vector playerVelocity = player.getVelocity();
@@ -137,7 +137,7 @@ public class PortalListener implements Listener {
                         entities.get(0).setVelocity(velocity);
                     }
 
-                    otherportal.getCenter().getWorld().playSound(otherportal.getCenter(), Sound.ENTITY_ZOMBIE_INFECT, 1, 1);
+                    pg.getSounds().getSound("portal-leave").play(otherportal.getCenter().getWorld(), otherportal.getCenter());
                     otherportal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, otherportal.getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
                 }
             });
@@ -272,8 +272,8 @@ public class PortalListener implements Listener {
                             Msg.CANT_DESTROY.send(player);
                             return;
                         }
+                        pg.getSounds().getSound("portal-destroy").play(portal.getCenter().getWorld(), portal.getCenter());
                         portal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, portal.getCenter(), 30, 0.6f, 0.6f, 0.6f, 0);
-                        portal.getCenter().getWorld().playSound(portal.getCenter(), Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1, 2);
                         pg.getPM().deletePortal(portal.getUid());
                         event.setCancelled(true);
                         return;
@@ -296,7 +296,7 @@ public class PortalListener implements Listener {
 
         if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.worldcheck")) {
             if (!pg.getCfg().worlds.contains(player.getWorld().getName())) {
-                player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+                pg.getSounds().getSound("portalgun-fail").play(player);
                 Msg.WORLD_NOT_LISTED.send(player);
                 return;
             }
@@ -308,13 +308,13 @@ public class PortalListener implements Listener {
         if (gun == null) {
             item.setName(Msg.INACTIVE_GUN.getMsg());
             player.setItemInHand(item);
-            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+            pg.getSounds().getSound("portalgun-break").play(player);
             return;
         }
 
         //Check if gun is owned by the player.
         if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId()) && !UserManager.get().isAdmin(player.getUniqueId())) {
-            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+            pg.getSounds().getSound("portalgun-fail").play(player);
             Msg.NOT_YOUR_GUN.send(player);
             return;
         }
@@ -327,7 +327,7 @@ public class PortalListener implements Listener {
         //Control panel.
         if (player.isSneaking()) {
             if (!Util.hasPermission(player, "portalguns.controlpanel." + gun.getType().toString().toLowerCase())) {
-                player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+                pg.getSounds().getSound("portalgun-fail").play(player);
                 Msg.CANT_ACCESS_CONTROL_PANEL.send(player);
                 return;
             }
@@ -337,7 +337,7 @@ public class PortalListener implements Listener {
         }
 
         if (!Util.hasPermission(player, "portalguns.portal.create." + gun.getType().toString().toLowerCase())) {
-            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+            pg.getSounds().getSound("portalgun-fail").play(player);
             Msg.CANT_CREATE_PORTALS.send(player);
             return;
         }
@@ -352,7 +352,7 @@ public class PortalListener implements Listener {
             face = blocks.get(1).getFace(blocks.get(0));
         }
         if (!canAttachPortal(block) || !canHavePortal(block.getRelative(face))) {
-            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+            pg.getSounds().getSound("portalgun-fail").play(player);
             Msg.BLOCK_TYPE.send(player);
             return;
         }
@@ -369,7 +369,7 @@ public class PortalListener implements Listener {
             Block otherBlock = otherPortal.getBlock1();
             if (!otherBlock.getWorld().equals(block.getWorld())) {
                 if (!pg.getCfg().portal__allowCrossWorlds) {
-                    player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+                    pg.getSounds().getSound("portalgun-fail").play(player);
                     Msg.CROSS_WORLD.send(player);
                     return;
                 }
@@ -380,7 +380,7 @@ public class PortalListener implements Listener {
                         maxDistance = pg.getCfg().portal__maxDistance__global;
                     }
                     if (maxDistance > 0 && otherBlock.getLocation().distance(block.getLocation()) > maxDistance) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+                        pg.getSounds().getSound("portalgun-fail").play(player);
                         Msg.DISTANCE.send(player);
                         return;
                     }
@@ -391,7 +391,7 @@ public class PortalListener implements Listener {
         //Try to get a nearby side block as a portal needs two blocks.
         Block side = getSideBlock(block, face, Util.yawToFace(player.getLocation().getYaw()));
         if (side == null ) {
-            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+            pg.getSounds().getSound("portalgun-fail").play(player);
             Msg.NO_SIDE_BLOCK.send(player);
             return;
         }
@@ -401,7 +401,7 @@ public class PortalListener implements Listener {
             BlockPlaceEvent blockPlaceEvent = new BlockPlaceEvent(block, block.getState(), block.getRelative(face.getOppositeFace()), item, player, true);
             pg.getServer().getPluginManager().callEvent(blockPlaceEvent);
             if (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()) {
-                player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+                pg.getSounds().getSound("portalgun-fail").play(player);
                 Msg.CANT_BUILD.send(player);
                 return;
             }
@@ -426,7 +426,7 @@ public class PortalListener implements Listener {
         int cooldownTime = gun.getType() == GunType.GLOBAL ? pg.getCfg().portalgun__cooldown__global : pg.getCfg().portalgun__cooldown__personal;
         if (cooldownTime > 0 && !Util.hasPermission(event.getPlayer(), "portalguns.bypass.cooldown")) {
             if (gun.onCooldown(type)) {
-                player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+                pg.getSounds().getSound("portalgun-fail").play(player);
                 String format = "";
                 Long timeLeft = gun.getCooldownTime(type);
                 if (timeLeft < Util.MSEC_IN_MIN) {
@@ -451,11 +451,12 @@ public class PortalListener implements Listener {
         if (portal != null) {
             portal.move(center, block.getRelative(face), side.getRelative(face), face, dir);
             pg.getPM().savePortal(portal);
-            player.playSound(player.getLocation(), Sound.ENTITY_WITHER_HURT, 0.6f, 2);
+            pg.getGM().saveGun(gun);
+            pg.getSounds().getSound("portal-create").play(player);
             if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
                 player.setItemInHand(pg.getGM().decreaseDurability(item));
                 if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+                    pg.getSounds().getSound("portalgun-break").play(player);
                 }
             }
             return;
@@ -464,16 +465,16 @@ public class PortalListener implements Listener {
         //Try create new portal.
         portal = pg.getPM().createPortal(gunUid, center, block.getRelative(face), side.getRelative(face), type, face, dir);
         if (portal == null) {
-            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
+            pg.getSounds().getSound("portalgun-fail").play(player);
             Msg.FAILED.send(player);
             return;
         }
-        player.playSound(player.getLocation(), Sound.ENTITY_WITHER_HURT, 0.6f, 2);
+        pg.getSounds().getSound("portal-create").play(player);
         gun.setPortal(type, portal.getUid());
         if (!Util.hasPermission(event.getPlayer(), "portalguns.bypass.durability")) {
             player.setItemInHand(pg.getGM().decreaseDurability(item));
             if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) {
-                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+                pg.getSounds().getSound("portalgun-break").play(player);
             }
         }
         pg.getGM().saveGun(gun);
