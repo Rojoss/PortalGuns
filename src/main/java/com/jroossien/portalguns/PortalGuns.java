@@ -1,10 +1,7 @@
 package com.jroossien.portalguns;
 
 import com.jroossien.portalguns.commands.Commands;
-import com.jroossien.portalguns.config.GunCfg;
-import com.jroossien.portalguns.config.PluginCfg;
-import com.jroossien.portalguns.config.PortalCfg;
-import com.jroossien.portalguns.config.RecipesCfg;
+import com.jroossien.portalguns.config.*;
 import com.jroossien.portalguns.config.messages.MessageCfg;
 import com.jroossien.portalguns.guns.GunManager;
 import com.jroossien.portalguns.listeners.CraftListener;
@@ -12,6 +9,7 @@ import com.jroossien.portalguns.listeners.MainListener;
 import com.jroossien.portalguns.listeners.PortalListener;
 import com.jroossien.portalguns.menu.ControlPanel;
 import com.jroossien.portalguns.menu.Menu;
+import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.portals.PortalManager;
 import com.jroossien.portalguns.util.item.ItemParser;
 import net.milkbowl.vault.Vault;
@@ -26,6 +24,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -37,6 +37,7 @@ public class PortalGuns extends JavaPlugin {
 
     private PluginCfg cfg;
     private MessageCfg msgCfg;
+    private SoundsCfg soundsCfg;
     private PortalCfg portalCfg;
     private RecipesCfg recipesCfg;
     private GunCfg gunCfg;
@@ -77,6 +78,7 @@ public class PortalGuns extends JavaPlugin {
 
         cfg = new PluginCfg("plugins/PortalGuns/PortalGuns.yml");
         msgCfg = new MessageCfg("plugins/PortalGuns/Messages.yml");
+        soundsCfg = new SoundsCfg("plugins/PortalGuns/Sounds.yml");
         recipesCfg = new RecipesCfg("plugins/PortalGuns/Recipes.yml");
         portalCfg = new PortalCfg("plugins/PortalGuns/data/Portals.yml");
         gunCfg = new GunCfg("plugins/PortalGuns/data/Guns.yml");
@@ -167,6 +169,10 @@ public class PortalGuns extends JavaPlugin {
 
     public MessageCfg getMsgCfg() {
         return msgCfg;
+    }
+
+    public SoundsCfg getSounds() {
+        return soundsCfg;
     }
 
     public RecipesCfg getRecipes() {
