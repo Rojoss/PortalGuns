@@ -10,23 +10,23 @@ import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.*;
 import com.jroossien.portalguns.util.item.EItem;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -48,101 +48,91 @@ public class PortalListener implements Listener {
         if (event.getFrom().getBlockX() == event.getTo().getBlockX() && event.getFrom().getBlockY() == event.getTo().getBlockY() && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
             return;
         }
-        for (PortalData portal : pg.getPM().getPortals().values()) {
-            if (!portal.isValid() || !portal.isEnabled()) {
-                continue;
-            }
-            if (portal.onCooldown()) {
-                continue;
-            }
-            if (!portal.getBlock1().equals(event.getTo().getBlock()) && !portal.getBlock2().equals(event.getTo().getBlock())) {
-                if (portal.getDirection() != BlockFace.DOWN) {
-                    continue;
-                }
-                if (!portal.getBlock1().equals(event.getTo().getBlock().getRelative(BlockFace.UP)) && !portal.getBlock2().equals(event.getTo().getBlock().getRelative(BlockFace.UP))) {
-                    continue;
-                }
-            }
-            GunData gun = pg.getGM().getGun(portal.getGun());
-            if (gun == null) {
-                return;
-            }
-
-            final Player player = event.getPlayer();
-            if (!Util.hasPermission(player, "portalguns.portal.use." + gun.getType().toString().toLowerCase())) {
-                return;
-            }
-
-            if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId()) && !gun.getShares().contains(player.getUniqueId()) && !UserManager.get().isAdmin(player.getUniqueId())) {
-                return;
-            }
-
-            //Get the other portal.
-            final PortalData otherportal = pg.getPM().getPortal(gun.getPortal(portal.getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
-            if (otherportal == null) {
-                return;
-            }
-
-            //Durability check and delete portal if out of durability.
-            if (portal.getDurability() != null && !Util.hasPermission(player, "portalguns.bypass.durability")) {
-                short durability = portal.getDurability();
-                durability--;
-                if (durability <= 0) {
-                    pg.getSounds().getSound("portal-destroy").play(portal.getCenter().getWorld(), portal.getCenter());
-                    pg.getPM().deletePortal(portal.getUid());
-                } else {
-                    portal.setDurability(durability);
-                    pg.getPM().savePortal(portal);
-                }
-            }
-
-            //Put the other portal on cooldown to fix infinite looping with portals on the ground.
-            otherportal.setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
-            portal.setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
-
-            //Get location and add some offset to prevent glitching in blocks.
-            Location targetLoc = otherportal.getCenter().clone();
-            //
-            if (otherportal.getDirection() == BlockFace.DOWN) {
-                targetLoc.add(0,-1.5f,0);
-            } else if (otherportal.getDirection() != BlockFace.UP) {
-                targetLoc.add(0,-1,0);
-            }
-
-            //Calculate pitch and yaw to look away from the portal.
-            targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), player.getLocation().getYaw()));
-            targetLoc.setPitch(player.getLocation().getPitch());
-
-            pg.getSounds().getSound("portal-enter").play(portal.getCenter().getWorld(), portal.getCenter());
-            portal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, portal.getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
-
-            final Vector playerVelocity = player.getVelocity();
-
-            //Teleport!
-            Util.teleport(player, targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
-                @Override
-                public void teleported(List<Entity> entities) {
-                    //Apply velocity
-                    Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
-                    if (pg.getCfg().portal__velocity__player__enable) {
-                        if (pg.getCfg().portal__velocity__player__directional) {
-                            velocity = velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier);
-                            entities.get(0).setVelocity(velocity.add(playerVelocity.multiply(pg.getCfg().portal__velocity__player__multiplier)));
-                        } else {
-                            velocity = velocity.multiply(Util.getMax(playerVelocity) * pg.getCfg().portal__velocity__player__multiplier);
-                            entities.get(0).setVelocity(velocity);
-                        }
-                    } else {
-                        velocity = velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier);
-                        entities.get(0).setVelocity(velocity);
-                    }
-
-                    pg.getSounds().getSound("portal-leave").play(otherportal.getCenter().getWorld(), otherportal.getCenter());
-                    otherportal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, otherportal.getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
-                }
-            });
+        PortalData portal = pg.getPM().getPortal(event.getTo().getBlock());
+        if (portal == null) {
             return;
         }
+        portal.use(event.getPlayer(), event.getPlayer(), event.getPlayer().getVelocity(), true);
+    }
+
+    @EventHandler
+    private void dropItem(final PlayerDropItemEvent event) {
+        if (!pg.getCfg().portal__teleport__itemsOnThrow) {
+            return;
+        }
+        final Item item = event.getItemDrop();
+        new BukkitRunnable() {
+            int count = 0;
+            Vector prevVel;
+            @Override
+            public void run() {
+                if (item == null || !item.isValid() || item.isDead()) {
+                    cancel();
+                    return;
+                }
+
+                PortalData portal = pg.getPM().getPortal(item.getLocation().getBlock());
+                if (portal != null) {
+                    portal.use(event.getPlayer(), item, prevVel == null ? item.getVelocity() : prevVel, false);
+                    cancel();
+                    return;
+                }
+
+                if (item.isOnGround() || count > 40) {
+                    cancel();
+                    return;
+                }
+                prevVel = item.getVelocity();
+                count++;
+            }
+        }.runTaskTimer(pg, 10, 3);
+    }
+
+    @EventHandler
+    private void entityDamage(final EntityDamageByEntityEvent event) {
+        if (!pg.getCfg().portal__teleport__entitiesOnDamage) {
+            return;
+        }
+        Player damager = null;
+        if (event.getDamager() instanceof Player) {
+            damager = (Player)event.getDamager();
+        } else if (event.getDamager() instanceof Projectile) {
+            Projectile proj = (Projectile)event.getDamager();
+            if (proj.getShooter() instanceof Player) {
+                damager = (Player)proj.getShooter();
+            }
+        }
+        if (damager == null) {
+            return;
+        }
+
+        final Entity entity = event.getEntity();
+        final Player player = damager;
+        new BukkitRunnable() {
+            int count = 0;
+            Vector prevVel;
+            @Override
+            public void run() {
+                if (entity == null || !entity.isValid() || entity.isDead()) {
+                    cancel();
+                    return;
+                }
+
+                PortalData portal = pg.getPM().getPortal(entity.getLocation().getBlock());
+                if (portal != null) {
+                    portal.use(player, entity, prevVel == null ? entity.getVelocity() : prevVel, false);
+                    cancel();
+                    return;
+                }
+
+                if (count > 5) {
+                    cancel();
+                    return;
+                }
+                prevVel = entity.getVelocity();
+                count++;
+            }
+        }.runTaskTimer(pg, 1, 3);
     }
 
     @EventHandler

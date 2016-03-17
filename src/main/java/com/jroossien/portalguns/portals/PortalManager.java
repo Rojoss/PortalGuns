@@ -136,4 +136,26 @@ public class PortalManager {
     public Map<UUID, PortalData> getPortals() {
         return portals;
     }
+
+    public PortalData getPortal(Block block) {
+        for (PortalData portal : portals.values()) {
+            if (!portal.isValid() || !portal.isEnabled()) {
+                continue;
+            }
+            if (portal.onCooldown()) {
+                continue;
+            }
+            if (!portal.getBlock1().equals(block) && !portal.getBlock2().equals(block)) {
+                if (portal.getDirection() != BlockFace.DOWN) {
+                    continue;
+                }
+                if (!portal.getBlock1().equals(block.getRelative(BlockFace.UP)) && !portal.getBlock2().equals(block.getRelative(BlockFace.UP))) {
+                    continue;
+                }
+            }
+            return portal;
+        }
+        return null;
+    }
+
 }

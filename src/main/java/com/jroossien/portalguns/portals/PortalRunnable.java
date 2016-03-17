@@ -69,7 +69,7 @@ public class PortalRunnable extends BukkitRunnable {
                         }
                     }
                     for (Player player : players) {
-                        loc.getWorld().spawnParticle(Particle.REDSTONE, loc.add(v), 0, (color.getRed() == 0 ? Float.MIN_NORMAL : (float)color.getRed()/255f), (float)color.getGreen()/255f, (float)color.getBlue()/255f, 1);
+                        player.spawnParticle(Particle.REDSTONE, loc.add(v), 0, (color.getRed() == 0 ? Float.MIN_NORMAL : (float)color.getRed()/255f), (float)color.getGreen()/255f, (float)color.getBlue()/255f, 1);
                         loc.subtract(v);
                     }
                 }
