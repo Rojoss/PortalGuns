@@ -7,8 +7,8 @@ import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.util.Parse;
 import com.jroossien.portalguns.util.TeleportCallback;
 import com.jroossien.portalguns.util.Util;
+import com.jroossien.portalguns.util.particles.ParticleEffect;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -237,7 +237,7 @@ public class PortalData {
         }
 
         pg.getSounds().getSound("portal-enter").play(getCenter().getWorld(), getCenter());
-        getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
+        ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, getCenter());
 
         if (entity instanceof Player) {
             Util.teleport(player, targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
@@ -276,7 +276,7 @@ public class PortalData {
         }
 
         pg.getSounds().getSound("portal-leave").play(otherportal.getCenter().getWorld(), otherportal.getCenter());
-        otherportal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, otherportal.getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
+        ParticleEffect.SMOKE_NORMAL.display(0.6f, 0.6f, 0.6f, 0, 40, otherportal.getCenter());
     }
 
 

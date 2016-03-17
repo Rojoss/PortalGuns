@@ -22,16 +22,16 @@ public class SoundsCfg extends EasyConfig {
     public void load() {
         super.load();
 
-        loadDefault("panel-open", Sound.ENTITY_HORSE_ARMOR, 1, 2);
-        loadDefault("panel-close", Sound.ENTITY_HORSE_SADDLE, 1, 2);
-        loadDefault("panel-fail", Sound.ENTITY_ITEM_BREAK, 0.5f, 0);
-        loadDefault("panel-click", Sound.BLOCK_NOTE_HAT, 0.5f, 2);
-        loadDefault("portal-create", Sound.ENTITY_WITHER_HURT, 0.6f, 2);
-        loadDefault("portal-destroy", Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1, 2);
-        loadDefault("portal-enter", Sound.ENTITY_ZOMBIE_INFECT, 1, 2);
-        loadDefault("portal-leave", Sound.ENTITY_ZOMBIE_INFECT, 1, 1);
-        loadDefault("portalgun-fail", Sound.BLOCK_FIRE_EXTINGUISH, 0.5f, 2);
-        loadDefault("portalgun-break", Sound.ENTITY_ITEM_BREAK, 1, 1);
+        loadDefault("panel-open", Sound.HORSE_ARMOR, 1, 2);
+        loadDefault("panel-close", Sound.HORSE_SADDLE, 1, 2);
+        loadDefault("panel-fail", Sound.ITEM_BREAK, 0.5f, 0);
+        loadDefault("panel-click", Sound.NOTE_STICKS, 0.5f, 2);
+        loadDefault("portal-create", Sound.WITHER_HURT, 0.6f, 2);
+        loadDefault("portal-destroy", Sound.ZOMBIE_REMEDY, 1, 2);
+        loadDefault("portal-enter", Sound.ZOMBIE_INFECT, 1, 2);
+        loadDefault("portal-leave", Sound.ZOMBIE_INFECT, 1, 1);
+        loadDefault("portalgun-fail", Sound.FIZZ, 0.5f, 2);
+        loadDefault("portalgun-break", Sound.ITEM_BREAK, 1, 1);
 
         for (Map.Entry<String, String> entry : sounds.entrySet()) {
             String[] split = entry.getValue().split(":");
