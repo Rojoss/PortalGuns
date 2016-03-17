@@ -6,7 +6,7 @@
 
     <groupId>com.jroossien</groupId>
     <artifactId>portalguns</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4.1-SNAPSHOT</version>
     <description>Adds advanced personal and global portal guns!</description>
 
     <properties>
