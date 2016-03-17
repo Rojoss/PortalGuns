@@ -48,6 +48,8 @@ public class PluginCfg extends EasyConfig {
     public boolean portal__velocity__player__enable = true;
     public boolean portal__velocity__player__directional = false;
     public double portal__velocity__player__multiplier = 1.5d;
+    public boolean portal__teleport__itemsOnThrow = false;
+    public boolean portal__teleport__entitiesOnDamage = false;
 
     public boolean cleanup__logout__destroy = false;
     public boolean cleanup__logout__disable = true;

@@ -29,7 +29,7 @@ public class Commands {
                 label.equalsIgnoreCase("portalg") || label.equalsIgnoreCase("pg")) {
 
             if (args.length < 1 || args[0].equalsIgnoreCase("help")) {
-                Msg.HELP.send(sender);
+                Msg.HELP.send(sender, false, true);
                 return true;
             }
 
@@ -137,7 +137,7 @@ public class Commands {
                 return true;
             }
 
-            Msg.HELP.send(sender);
+            Msg.HELP.send(sender, false, true);
             return true;
         }
         return false;

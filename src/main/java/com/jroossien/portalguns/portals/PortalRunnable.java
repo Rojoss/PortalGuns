@@ -1,7 +1,6 @@
 package com.jroossien.portalguns.portals;
 
 import com.jroossien.portalguns.PortalGuns;
-import com.jroossien.portalguns.PortalType;
 import com.jroossien.portalguns.UserManager;
 import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.guns.GunType;
@@ -13,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PortalRunnable extends BukkitRunnable {

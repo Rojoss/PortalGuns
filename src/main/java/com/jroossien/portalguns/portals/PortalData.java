@@ -1,15 +1,23 @@
 package com.jroossien.portalguns.portals;
 
+import com.jroossien.portalguns.PortalGuns;
 import com.jroossien.portalguns.PortalType;
+import com.jroossien.portalguns.UserManager;
+import com.jroossien.portalguns.guns.GunData;
 import com.jroossien.portalguns.util.Parse;
+import com.jroossien.portalguns.util.TeleportCallback;
 import com.jroossien.portalguns.util.Util;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PortalData {
 
@@ -176,6 +184,99 @@ public class PortalData {
             return 0l;
         }
         return cooldown - System.currentTimeMillis();
+    }
+
+    public boolean use(Player player, final Entity entity, final Vector originalVelocity, boolean useDurability) {
+        final PortalGuns pg = PortalGuns.inst();
+        if (!isValid() || !isEnabled() || onCooldown()) {
+            return false;
+        }
+
+        GunData gun = pg.getGM().getGun(getGun());
+        if (gun == null) {
+            return false;
+        }
+
+        if (!Util.hasPermission(player, "portalguns.portal.use." + gun.getType().toString().toLowerCase())) {
+            return false;
+        }
+
+        if (gun.getOwner() != null && !gun.getOwner().equals(player.getUniqueId()) && !gun.getShares().contains(player.getUniqueId()) && !UserManager.get().isAdmin(player.getUniqueId())) {
+            return false;
+        }
+
+        final PortalData otherportal = pg.getPM().getPortal(gun.getPortal(getType() == PortalType.PRIMARY ? PortalType.SECONDARY : PortalType.PRIMARY));
+        if (otherportal == null || !otherportal.isValid() || !otherportal.isEnabled() || otherportal.onCooldown()) {
+            return false;
+        }
+
+        if (useDurability && getDurability() != null && !Util.hasPermission(player, "portalguns.bypass.durability")) {
+            durability--;
+            if (durability <= 0) {
+                pg.getSounds().getSound("portal-destroy").play(getCenter().getWorld(), getCenter());
+                pg.getPM().deletePortal(getUid());
+            } else {
+                setDurability(durability);
+                pg.getPM().savePortal(this);
+            }
+        }
+
+        setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
+        otherportal.setCooldown(System.currentTimeMillis() + pg.getCfg().portal__fixDelay);
+
+        Location targetLoc = otherportal.getCenter().clone();
+        if (otherportal.getDirection() == BlockFace.DOWN) {
+            targetLoc.add(0,-1.5f,0);
+        } else if (otherportal.getDirection() != BlockFace.UP) {
+            targetLoc.add(0, -0.95f, 0);
+        }
+
+        if (entity instanceof LivingEntity) {
+            targetLoc.setYaw(Util.getYaw(otherportal.getDirection(), entity.getLocation().getYaw()));
+            targetLoc.setPitch(entity.getLocation().getPitch());
+        }
+
+        pg.getSounds().getSound("portal-enter").play(getCenter().getWorld(), getCenter());
+        getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
+
+        if (entity instanceof Player) {
+            Util.teleport(player, targetLoc, pg.getCfg().portal__teleportLeashedEntities, new TeleportCallback() {
+                @Override
+                public void teleported(List<Entity> entities) {
+                    afterTeleport(entities.get(0), otherportal, originalVelocity);
+                }
+            });
+        } else {
+            entity.teleport(targetLoc);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    afterTeleport(entity, otherportal, originalVelocity);
+                }
+            }.runTaskLater(pg, 5);
+        }
+        return true;
+    }
+
+    private void afterTeleport(Entity entity, PortalData otherportal, Vector originalVelocity) {
+        PortalGuns pg = PortalGuns.inst();
+
+        Vector velocity = new Vector(otherportal.getDirection().getModX(), otherportal.getDirection().getModY(), otherportal.getDirection().getModZ());
+        if (pg.getCfg().portal__velocity__player__enable) {
+            if (pg.getCfg().portal__velocity__player__directional) {
+                velocity = velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier);
+                entity.setVelocity(velocity.add(originalVelocity.multiply(pg.getCfg().portal__velocity__player__multiplier)));
+            } else {
+                velocity = velocity.multiply(Util.getMax(originalVelocity) * pg.getCfg().portal__velocity__player__multiplier);
+                entity.setVelocity(velocity);
+            }
+        } else {
+            velocity = velocity.multiply(pg.getCfg().portal__velocity__defaultMultiplier);
+            entity.setVelocity(velocity);
+        }
+
+        pg.getSounds().getSound("portal-leave").play(otherportal.getCenter().getWorld(), otherportal.getCenter());
+        otherportal.getCenter().getWorld().spawnParticle(Particle.SMOKE_NORMAL, otherportal.getCenter(), 40, 0.6f, 0.6f, 0.6f, 0);
     }
 
 
