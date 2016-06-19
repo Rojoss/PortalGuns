@@ -10,9 +10,7 @@ import com.jroossien.portalguns.guns.GunType;
 import com.jroossien.portalguns.portals.PortalData;
 import com.jroossien.portalguns.util.*;
 import com.jroossien.portalguns.util.item.EItem;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
@@ -25,6 +23,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -240,7 +239,21 @@ public class PortalListener implements Listener {
     @EventHandler
     private void usePortalGun(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        EItem item = new EItem(event.getItem());
+
+        //Prevent placing blocks by right clicking with portal gun in offhand
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getHand() == EquipmentSlot.OFF_HAND) {
+            EItem item = new EItem(player.getInventory().getItemInOffHand());
+            if (!ItemUtil.compare(item, pg.getGM().getBlankGunItem(), false, true, false, true)) {
+                return;
+            }
+            if (item.getLore().isEmpty() || !Str.replaceColor(item.getLore().get(0)).startsWith(Msg.GUN_UID_PREFIX.getMsg()) || !Str.replaceColor(item.getLore().get(1)).startsWith(Msg.GUN_OWNER.getMsg())) {
+                return;
+            }
+            event.setUseItemInHand(Event.Result.DENY);
+            event.setCancelled(true);
+        }
+
+        EItem item = new EItem(player.getInventory().getItemInMainHand());
 
         //Delete portals by shift right clicking blocks portal is attached too.
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
